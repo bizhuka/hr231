@@ -1,0 +1,215 @@
+{
+  "_version": "1.42.0",
+  "sap.app": {
+    "id": "zhr231",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.8.4",
+      "toolsId": "7e3a49ee-07e1-4c3c-86c5-de95dbc2e659"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/sap/opu/odata/sap/ZC_HR231_EMERGENCY_ROLE_CDS/",
+        "type": "OData",
+        "settings": {
+          "annotations": [
+            "ZC_HR231_EMERGENCY_ROLE_CDS_VAN",
+            "annotation"
+          ],
+          "localUri": "localService/metadata.xml",
+          "odataVersion": "2.0"
+        }
+      },
+      "ZC_HR231_EMERGENCY_ROLE_CDS_VAN": {
+        "uri": "/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZC_HR231_EMERGENCY_ROLE_CDS_VAN',Version='0001')/$value/",
+        "type": "ODataAnnotation",
+        "settings": {
+          "localUri": "localService/ZC_HR231_EMERGENCY_ROLE_CDS_VAN.xml"
+        }
+      },
+      "annotation": {
+        "type": "ODataAnnotation",
+        "uri": "annotations/annotation.xml",
+        "settings": {
+          "localUri": "annotations/annotation.xml"
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.102.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ushell": {},
+        "sap.f": {},
+        "sap.ui.comp": {},
+        "sap.ui.generic.app": {},
+        "sap.suite.ui.generic.template": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "zhr231.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "defaultBindingMode": "TwoWay",
+          "defaultCountMode": "Inline",
+          "refreshAfterChange": false,
+          "metadataUrlParams": {
+            "sap-value-list": "none"
+          }
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [],
+      "targets": {}
+    },
+
+                                        "extends": {
+                                          "extensions": {
+                                            "sap.ui.controllerExtensions": {
+                                              "sap.suite.ui.generic.template.ListReport.view.ListReport": {
+                                                "controllerName": "zhr231.ext.controller.ListReportExtension"
+                                              },
+                                              "sap.suite.ui.generic.template.ObjectPage.view.Details":{
+                                                "controllerName": "zhr231.ext.controller.ObjectPageExtension",
+                                                "sap.ui.generic.app": {
+                                      
+                                                }
+                                              }
+                                            },
+                                            "sap.ui.viewExtensions": {
+                                              "sap.suite.ui.generic.template.ListReport.view.ListReport": {
+                                                "SmartFilterBarControlConfigurationExtension|ZC_HR231_Emergency_Role": {
+                                                        "className": "sap.ui.core.Fragment",
+                                                        "fragmentName": "zhr231.ext.fragment.CustomFilter",
+                                                        "type": "XML"
+                                                }                 
+                                              },
+                                      
+                                              "sap.suite.ui.generic.template.ObjectPage.view.Details": {
+                                                "AfterFacet|ZC_HR231_Emergency_Role|GeneralInfo": {
+                                                  "className": "sap.ui.core.Fragment",
+                                                  "fragmentName": "zhr231.ext.fragment.TeamContainer",
+                                                  "type": "XML",
+                                                  "sap.ui.generic.app": {
+                                                      "title": "Team calendar"
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+                                        }
+  },
+  "sap.ui.generic.app": {
+    "_version": "1.3.0",
+    "settings": {
+      "forceGlobalRefresh": false,
+      "objectPageHeaderType": "Dynamic",
+      "considerAnalyticalParameters": true,
+      "showDraftToggle": false,
+                "flexibleColumnLayout": {
+                    "defaultTwoColumnLayoutType": "TwoColumnsMidExpanded"
+                }
+    },
+    "pages": {
+      "ListReport|ZC_HR231_Emergency_Role": {
+        "entitySet": "ZC_HR231_Emergency_Role",
+        "component": {
+          "name": "sap.suite.ui.generic.template.ListReport",
+          "list": true,
+          "settings": {
+            "condensedTableLayout": true,
+            "smartVariantManagement": true,
+            "enableTableFilterInPageVariant": true,
+            "filterSettings": {
+              "dateSettings": {
+                "useDateRange": true
+              }
+            },
+                                          "dataLoadSettings": {  "loadDataOnAppLaunch": "always" },
+                                          "tableSettings": {
+                                            "createWithParameterDialog" : {
+                                              "fields" : {
+                                                  "pernr":{"path": "pernr"},
+                                                  "begda":{"path": "begda"},
+                                                  "endda":{"path": "endda"}
+                                              },
+                                                  "eid":{"path": "eid", "comment": "Use ZDHR231_EMR_DEF table"}
+                                            }
+                                            }
+          }
+        },
+        "pages": {
+          "ObjectPage|ZC_HR231_Emergency_Role": {
+            "entitySet": "ZC_HR231_Emergency_Role",
+            "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
+            "component": {
+              "name": "sap.suite.ui.generic.template.ObjectPage"
+            }
+          },
+          "pages": {
+            "ObjectPage|to_Text": {
+              "navigationProperty": "to_Text",
+              "entitySet": "ZC_HR231_EmergeRoleText",
+              "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
+              "component": {
+                "name": "sap.suite.ui.generic.template.ObjectPage"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  }
+}

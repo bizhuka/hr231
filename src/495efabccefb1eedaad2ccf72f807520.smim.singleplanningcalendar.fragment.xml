@@ -1,0 +1,51 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:unified="sap.ui.unified"
+	xmlns:core="sap.ui.core">
+	<VBox>
+	
+		<SinglePlanningCalendar
+			id="SinglePlanningCalendar"
+			startDateChange=".startDateChangeHandler"
+			viewChange=".viewChangeHandler"
+			appointments="{calendar>appointments}"
+			startDate="{calendar>/startDate}"
+			>
+			<actions>
+                <Select id="SinglePlanningCalendarTeamSelector" change=".selectChangeHandler"  items="{ path: 'calendar>/selector' }">
+                    <core:Item key="{calendar>index}" text="{calendar>text}" />
+                </Select>
+				<!-- <Button
+					id="SinglePlanningCalendarCreateAppointmentButton"
+					text="Create"
+					press=".appointmentCreate"
+					tooltip="Create new appointment"/> -->
+				<Button
+					id="SinglePlanningCalendarLegendButton"
+					icon="sap-icon://legend"
+					press=".openLegend"
+					tooltip="Open Single Planning Calendar legend"
+					ariaHasPopup="Dialog"/>
+			</actions>
+			<views>
+				<!-- <SinglePlanningCalendarWeekView
+					key="Week"
+					title="Week"/> -->
+				<SinglePlanningCalendarMonthView
+					key="OneMonth"
+					title="Month"/>
+
+			</views>
+			<appointments>
+				<unified:CalendarAppointment
+					startDate="{calendar>start}"
+					endDate="{calendar>end}"
+					title="{calendar>title} {calendar>info}"					
+					text="{calendar>info}"
+					type="{calendar>type}">
+					<!-- icon="{calendar>icon}" -->
+				</unified:CalendarAppointment>
+			</appointments>
+		</SinglePlanningCalendar>
+	</VBox>
+</core:FragmentDefinition>

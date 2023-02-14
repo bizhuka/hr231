@@ -1,0 +1,11 @@
+run commands:
+- npm install
+- ui5 build preload
+
+
+Copy \dist\Component-preload.js   file to   webapp\ folder
+
+
+delete! dist\ & node_modules\ folders
+
+run SE38-> BSP_UPDATE_MIMEREPOS
