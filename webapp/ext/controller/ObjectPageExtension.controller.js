@@ -7,11 +7,15 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		viewKey: "Week",
 		supportedAppointmentItems: [],
 		team: [],
-		selector:[]
+		selector: []
 	},
 
 	onInit: function () {
 		window._objectPage = this
+
+		const objectPage = this.getView().byId(this._prefix + "objectPage")
+		if (objectPage)
+			objectPage.setUseIconTabBar(true)
 
 		this._oModel = new sap.ui.model.json.JSONModel()
 		this._oModel.setData(this._data)
@@ -24,7 +28,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 	},
 
 	_refreshCalendar: function () {
-		this._oModel.setData(this._data)
+		this._oModel.updateBindings()
 	},
 
 	// Loads and displays calendar (if not already loaded), otherwise just displays it
@@ -88,6 +92,42 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		}.bind(this));
 	},
 
+	update_1_appointment: function (message, delApp, insApp) {
+		const row = this._data.team.filter(item => item.personID === delApp.pernr)
+		if (!row[0]) return
+
+		const delArr = row[0].appointments.filter(app =>
+			this.getTextDate(app.start) === this.getTextDate(this.getFixedDate(delApp.begda))
+			&& this.getTextDate(app.end1) === this.getTextDate(this.getFixedDate(delApp.endda)))
+		if (!delArr[0]) return
+		const delItem = delArr[0]
+
+
+		if (!insApp)
+			row[0].appointments = row[0].appointments.filter(app => app !== delItem)
+		else
+			this.setPeriod(delItem, insApp)
+
+		this._refreshCalendar()
+		window._main_table.getParent().rebindTable()
+		sap.m.MessageToast.show('Emergency role ' + message, {
+			duration: 3500
+		});
+	},
+
+	setPeriod: function (item, src) {
+		item.notes = src.notes
+		item.start = this.getFixedDate(src.begda)
+
+		const endda = this.getFixedDate(src.endda, true)
+		item.end1 = endda.low
+		item.end2 = endda.high
+
+		item.info = "From " + this.getTextDate(src.begda) + " to " + this.getTextDate(src.endda)
+		if (item.notes)
+			item.info += (" - " + item.notes)
+	},
+
 	setCurrentPerson: function (items, pernr, begda) {
 		this._loadCalendar("PlanningCalendar")
 
@@ -101,14 +141,16 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 				appointments: [],
 				headers: []
 			}
-
-			line.appointments.push({
-				start: this.getBaseDate(objPerson.begda),
-				end: this.getBaseDate(objPerson.endda, true),
+			const app = {
 				title: objPerson.role_text,
-				info: "From " + objPerson.begda.toLocaleDateString('ru-RU') + " to " + objPerson.endda.toLocaleDateString('ru-RU'),
-				type: 'Type' + objPerson.eid
-			})
+				type: 'Type' + objPerson.eid,
+
+				pernr: objPerson.pernr,
+				ename: objPerson.ename
+			}
+			this.setPeriod(app, objPerson)
+			line.appointments.push(app)
+
 			team[objPerson.pernr] = line
 		}
 
@@ -120,7 +162,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 			this._data.team.unshift(first)
 		}
 
-		
+
 		this._data.selector = []
 		this._data.selector.push({
 			index: 'Team',
@@ -134,7 +176,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		}
 
 		if (begda)
-			this._data.startDate = this.getBaseDate(this.getMonday(begda))
+			this._data.startDate = this.getFixedDate(this.getMonday(begda))
 
 		this._refreshCalendar()
 	},
@@ -144,7 +186,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		if (!window._main_table)
 			this.getView().getModel().read("/ZC_HR231_Emergency_Role", {
 				urlParameters: {
-					"$select": "pernr,role_text,begda,endda,ename,role_group,eid",
+					"$select": "pernr,role_text,begda,endda,ename,plans_txt,grp_text,notes,eid",
 					"$filter": "(begda ge datetime'" + _this.getDateIso(new Date(new Date().getFullYear(), 0, 1)) + "T00:00:00' and begda le datetime'" + _this.getDateIso(new Date()) + "T00:00:00')"
 				},
 				success: function (data) {
@@ -178,7 +220,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 	},
 
 	// TODO make lib
-	getDateIso: function(date){
+	getDateIso: function (date) {
 		return date.toISOString().split('T')[0]
 	},
 
@@ -197,7 +239,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 	// Opend a legend
 	openLegend: function (oEvent) {
 		var _this = this,
-		    oSource = oEvent.getSource(),
+			oSource = oEvent.getSource(),
 			oView = _this.getView();
 		if (!this._pLegendPopover) {
 			this._pLegendPopover = sap.ui.core.Fragment.load({
@@ -231,8 +273,21 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		var oSelectedRow = oEvent.getParameter("rows")[0],
 			sSelectedId = oSelectedRow.getId();
 		this._sSelectedMember = sSelectedId.substr(sSelectedId.lastIndexOf('-') + 1);
-		oSelectedRow.setSelected(false);		
+		oSelectedRow.setSelected(false);
 		this._loadCalendar("SinglePlanningCalendar");
+	},
+
+	handleAppointmentSelect: function (oEvent) {
+		const oAppointment = oEvent.getParameter("appointment")
+		if (!oAppointment)
+			return
+
+		const _this = this
+		sap.ui.require(["zhr231/ext/controller/Details"], function (Details) {
+			if (!_this.details)
+				_this.details = new Details(_this)
+			_this.details.showPopup(oAppointment)
+		})
 	},
 
 	// Saves currently selected date
@@ -259,11 +314,21 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		return new Date(d.setDate(diff));
 	},
 
-	getBaseDate: function (date, end) {
-		result = new Date(date.getTime() + date.getTimezoneOffset() * 60000)
-		if (end)
-			result.setDate(result.getDate() + 1);
+	getTextDate: function (d) {
+		return d.toLocaleDateString('ru-RU')
+	},
 
-		return result
+	getFixedDate: function (date, pair) {
+		const low = new Date(date.getTime() + date.getTimezoneOffset() * 60000)
+		if (!pair)
+			return low
+
+		const high = new Date(low.getTime());
+		high.setDate(high.getDate() + 1)
+
+		return {
+			low: low,
+			high: high
+		}
 	}
 });

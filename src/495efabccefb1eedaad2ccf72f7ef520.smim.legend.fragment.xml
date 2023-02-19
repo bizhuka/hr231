@@ -14,8 +14,7 @@
 			<appointmentItems>
 				<u:CalendarLegendItem
 					text="{calendar>text}"
-					type="{calendar>type}"
-					tooltip="{calendar>text}" />
+					type="{calendar>type}"/>
 			</appointmentItems>
 		</PlanningCalendarLegend>
 	</ResponsivePopover>

@@ -8,6 +8,7 @@ CLASS zcl_hr231_report DEFINITION
     INTERFACES zif_sadl_exit .
     INTERFACES zif_sadl_stream_runtime .
     INTERFACES zif_sadl_read_runtime .
+    INTERFACES zif_sadl_delete_runtime .
   PROTECTED SECTION.
   PRIVATE SECTION.
     CONSTANTS:
@@ -36,11 +37,28 @@ CLASS zcl_hr231_report DEFINITION
         zzbwpa       TYPE p0007-zzbwpa,
         phone_mobile TYPE string,
         phone_work   TYPE string,
+        notes        TYPE p9018-notes,
+        kz           TYPE zdhr231_emr_def-kz,
+        en           TYPE zdhr231_emr_def-en,
+        ru           TYPE zdhr231_emr_def-ru,
       END OF ts_detail_pernr,
 
       BEGIN OF ts_paris_info,
         t TYPE STANDARD TABLE OF ts_detail_pernr WITH DEFAULT KEY,
-      END OF ts_paris_info.
+      END OF ts_paris_info,
+
+      BEGIN OF ts_9018_io,
+        pernr        TYPE p9018-pernr,
+        begda        TYPE p9018-begda,
+        endda        TYPE p9018-endda,
+        emergrole_id TYPE p9018-emergrole_id,
+        notes        TYPE p9018-notes,
+
+        " hidden in UI5 interface
+        eid          TYPE p9018-emergrole_id,
+        prev_begda   TYPE d,
+        prev_endda   TYPE d,
+      END OF ts_9018_io.
 
     METHODS:
       _make_report IMPORTING io_xtt                 TYPE REF TO zif_xtt
@@ -52,12 +70,48 @@ CLASS zcl_hr231_report DEFINITION
                       RETURNING VALUE(rs_paris_info) TYPE ts_paris_info,
 
       _get_employee_photo IMPORTING iv_pernr TYPE pernr-pernr RETURNING VALUE(rv_photo) TYPE xstring,
-      _get_small_icon     IMPORTING iv_photo TYPE xstring RETURNING VALUE(rv_icon) TYPE xstring.
+      _get_small_icon     IMPORTING iv_photo TYPE xstring RETURNING VALUE(rv_icon) TYPE xstring,
+
+      _check_has_default IMPORTING ir_9018_io      TYPE REF TO ts_9018_io
+                         RETURNING VALUE(rv_error) TYPE string,
+
+      _check_is_exists   IMPORTING is_9018_io      TYPE ts_9018_io
+                         RETURNING VALUE(rv_error) TYPE string,
+
+      _delete_previous   IMPORTING is_9018_io      TYPE ts_9018_io
+                         RETURNING VALUE(rv_error) TYPE string,
+
+      _create_new        IMPORTING is_9018_io      TYPE ts_9018_io
+                         RETURNING VALUE(rv_error) TYPE string.
 ENDCLASS.
 
 
 
 CLASS ZCL_HR231_REPORT IMPLEMENTATION.
+
+
+  METHOD zif_sadl_delete_runtime~execute.
+    LOOP AT it_key_values ASSIGNING FIELD-SYMBOL(<ls_item>).
+      DATA(lv_tabix) = sy-tabix.
+
+      DATA(ls_item) = CORRESPONDING ts_9018_io( <ls_item> ).
+      ls_item-prev_begda   = ls_item-begda.
+      ls_item-prev_endda   = ls_item-endda.
+      ls_item-emergrole_id = ls_item-eid.
+
+      DATA(lv_error) = _delete_previous( ls_item ).
+      CHECK lv_error IS NOT INITIAL.
+
+      INSERT lv_tabix INTO TABLE et_failed[].
+      TRY.
+          zcx_eui_no_check=>raise_sys_error( iv_message = lv_error ).
+        CATCH zcx_eui_no_check INTO DATA(lo_error).
+          RAISE EXCEPTION TYPE cx_sadl_contract_violation
+            EXPORTING
+              previous = lo_error.
+      ENDTRY.
+    ENDLOOP.
+  ENDMETHOD.
 
 
   METHOD zif_sadl_read_runtime~execute.
@@ -86,80 +140,30 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
 
 
   METHOD zif_sadl_stream_runtime~create_stream.
-*    TYPES: BEGIN OF ts_9018, pernr TYPE p9018-pernr, begda TYPE p9018-begda, endda TYPE p9018-endda,
-*             eid   TYPE p9018-emergrole_id, "<--- hidden in UI5 interface
-*           END OF ts_9018.
-    DATA(lr_9018) = NEW p9018( ).
-    /ui2/cl_json=>deserialize( EXPORTING jsonx = is_media_resource-value CHANGING data = lr_9018->* ).
+    DATA(ls_9018_io) = VALUE ts_9018_io( ).
+    /ui2/cl_json=>deserialize( EXPORTING jsonx = is_media_resource-value CHANGING data = ls_9018_io ).
 
-**********************************************************************
-    SELECT SINGLE emergrole_id INTO @lr_9018->emergrole_id
-    FROM zdhr231_emr_def
-    WHERE pernr = @lr_9018->pernr.
-    IF lr_9018->emergrole_id IS INITIAL.
-      DATA(lv_error) = |For Personnel Number { lr_9018->pernr ALPHA = OUT } there is no default value in ZDHR231_EMR_DEF table|.
+    " № 1
+    DATA(lv_error) = _check_has_default( REF #( ls_9018_io ) ).
+
+    " № 2
+    IF lv_error IS INITIAL.
+      lv_error = _check_is_exists( ls_9018_io ).
     ENDIF.
 
-**********************************************************************
-    DO 1 TIMES.
-      CHECK lv_error IS INITIAL.
-
-      DATA(lr_prev) = CAST p9018( zcl_hr_read=>infty_row(
-             iv_infty   = '9018'
-             iv_pernr   = lr_9018->pernr
-             iv_begda   = lr_9018->begda
-             iv_endda   = lr_9018->endda
-             iv_no_auth = abap_true
-             iv_where   = |EMERGROLE_ID = '{ lr_9018->emergrole_id }'| ) ).
-      CHECK lr_prev IS NOT INITIAL.
-      lv_error = |The item '{ lr_9018->emergrole_id }' already exist in period { lr_prev->begda DATE = USER } - { lr_prev->endda DATE = USER } |.
-    ENDDO.
-
-**********************************************************************
-    DO 1 TIMES.
-      CHECK lv_error IS INITIAL.
-
-      " Lock
-      DATA(ls_return1) = VALUE bapireturn1( ).
-      CALL FUNCTION 'BAPI_EMPLOYEE_ENQUEUE'
-        EXPORTING
-          number = lr_9018->pernr
-        IMPORTING
-          return = ls_return1.
-      IF ls_return1-id = 'RP' AND ls_return1-number = 60.
-        ls_return1-message_v1 = lr_9018->pernr.
-      ENDIF.
-      CHECK ls_return1 IS INITIAL.
-
-      " Create
-*      DATA(ls_9018) = VALUE p9018( pernr        = lr_9018->pernr begda        = lr_9018->begda endda        = lr_9018->endda
-*                                   emergrole_id = lr_9018->eid ).
-      CALL FUNCTION 'HR_INFOTYPE_OPERATION'
-        EXPORTING
-          infty         = '9018'
-          number        = lr_9018->pernr
-*         subtype       = lr_9018->subty
-          validityend   = lr_9018->endda
-          validitybegin = lr_9018->begda
-          record        = lr_9018->*
-          operation     = 'INS'
-        IMPORTING
-          return        = ls_return1
-        EXCEPTIONS
-          OTHERS        = 0.
-
-      CALL FUNCTION 'BAPI_EMPLOYEE_DEQUEUE'
-        EXPORTING
-          number = lr_9018->pernr.
-    ENDDO.
-
-**********************************************************************
-    IF ls_return1 IS NOT INITIAL.
-      "MESSAGE ID sy-msgid TYPE 'E' NUMBER sy-msgno WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO DATA(lv_error).
-      MESSAGE ID ls_return1-id TYPE 'E' NUMBER ls_return1-number
-         WITH ls_return1-message_v1 ls_return1-message_v2 ls_return1-message_v3 ls_return1-message_v4 INTO lv_error.
+    " № 3
+    IF lv_error IS INITIAL AND ( ls_9018_io-prev_begda IS NOT INITIAL
+                              OR ls_9018_io-prev_endda IS NOT INITIAL ).
+      lv_error = _delete_previous( ls_9018_io ).
     ENDIF.
 
+    " № 4
+    IF lv_error IS INITIAL.
+      lv_error = _create_new( ls_9018_io ).
+    ENDIF.
+
+
+**********************************************************************
     IF lv_error IS NOT INITIAL.
       TRY.
           zcx_eui_no_check=>raise_sys_error( iv_message = lv_error ).
@@ -170,9 +174,11 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
       ENDTRY.
     ENDIF.
 
-    zcl_hr231_options=>get_instance( )->send_to( lr_9018->* ).
+**********************************************************************
+    DATA(ls_p9018) = CORRESPONDING p9018( ls_9018_io ).
+    zcl_hr231_options=>get_instance( )->send_to( ls_p9018 ).
 
-    er_entity = lr_9018.
+    er_entity = NEW p9018( ls_p9018 ).
     COMMIT WORK AND WAIT.
   ENDMETHOD.
 
@@ -226,6 +232,133 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD _check_has_default.
+    SELECT SINGLE emergrole_id INTO @ir_9018_io->emergrole_id
+    FROM zdhr231_emr_def
+    WHERE pernr = @ir_9018_io->pernr.
+    CHECK ir_9018_io->emergrole_id IS INITIAL.
+
+    rv_error = |For Personnel Number { ir_9018_io->pernr ALPHA = OUT } there is no default value in ZDHR231_EMR_DEF table|.
+  ENDMETHOD.
+
+
+  METHOD _check_is_exists.
+    TYPES p9018_tab TYPE STANDARD TABLE OF p9018 WITH DEFAULT KEY.
+    DATA(lt_prev_tab) = CAST p9018_tab( zcl_hr_read=>infty_tab(
+           iv_infty   = '9018'
+           iv_pernr   = is_9018_io-pernr
+           iv_begda   = is_9018_io-begda
+           iv_endda   = is_9018_io-endda
+           iv_no_auth = abap_true
+           iv_where   = |EMERGROLE_ID = '{ is_9018_io-emergrole_id }'| ) )->*.
+
+    IF lines( lt_prev_tab )   = 1                     AND
+       is_9018_io-begda       = is_9018_io-prev_begda AND
+       is_9018_io-endda       = is_9018_io-prev_endda AND
+       lt_prev_tab[ 1 ]-notes = is_9018_io-notes.
+      rv_error = |All data are same|.
+      RETURN.
+    ENDIF.
+
+    DELETE lt_prev_tab WHERE begda = is_9018_io-prev_begda
+                         AND endda = is_9018_io-prev_endda.
+
+    CHECK lt_prev_tab[] IS NOT INITIAL.
+    rv_error = |The item '{ is_9018_io-emergrole_id }' already exist in period { lt_prev_tab[ 1 ]-begda DATE = USER } - { lt_prev_tab[ 1 ]-endda DATE = USER } |.
+  ENDMETHOD.
+
+
+  METHOD _create_new.
+    " Lock
+    DATA(ls_return1) = VALUE bapireturn1( ).
+    CALL FUNCTION 'BAPI_EMPLOYEE_ENQUEUE'
+      EXPORTING
+        number = is_9018_io-pernr
+      IMPORTING
+        return = ls_return1.
+    IF ls_return1-id = 'RP' AND ls_return1-number = 60.
+      ls_return1-message_v1 = is_9018_io-pernr.
+    ENDIF.
+    IF ls_return1 IS INITIAL.
+
+      " Create
+      DATA(ls_p9018) = CORRESPONDING p9018( is_9018_io ).
+      CALL FUNCTION 'HR_INFOTYPE_OPERATION'
+        EXPORTING
+          infty         = '9018'
+          number        = ls_p9018-pernr
+          validityend   = ls_p9018-endda
+          validitybegin = ls_p9018-begda
+          record        = ls_p9018
+          operation     = 'INS'
+        IMPORTING
+          return        = ls_return1
+        EXCEPTIONS
+          OTHERS        = 0.
+
+      CALL FUNCTION 'BAPI_EMPLOYEE_DEQUEUE'
+        EXPORTING
+          number = is_9018_io-pernr.
+    ENDIF.
+
+    CHECK ls_return1 IS NOT INITIAL.
+    "MESSAGE ID sy-msgid TYPE 'E' NUMBER sy-msgno WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO rv_error.
+    MESSAGE ID ls_return1-id TYPE 'E' NUMBER ls_return1-number
+       WITH ls_return1-message_v1 ls_return1-message_v2 ls_return1-message_v3 ls_return1-message_v4 INTO rv_error.
+  ENDMETHOD.
+
+
+  METHOD _delete_previous.
+    DATA(ls_prev_row) = CAST p9018( zcl_hr_read=>infty_row(
+           iv_infty   = '9018'
+           iv_pernr   = is_9018_io-pernr
+           iv_begda   = is_9018_io-prev_begda
+           iv_endda   = is_9018_io-prev_endda
+           iv_no_auth = abap_true
+           iv_where   = |EMERGROLE_ID = '{ is_9018_io-emergrole_id }'|
+           is_default = VALUE p9018( ) ) )->*.
+    IF ls_prev_row IS INITIAL.
+      rv_error = |Items { is_9018_io-prev_begda DATE = USER } { is_9018_io-prev_endda DATE = USER } not found|.
+      RETURN.
+    ENDIF.
+
+    " Lock
+    DATA(ls_return1) = VALUE bapireturn1( ).
+    CALL FUNCTION 'BAPI_EMPLOYEE_ENQUEUE'
+      EXPORTING
+        number = is_9018_io-pernr
+      IMPORTING
+        return = ls_return1.
+    IF ls_return1-id = 'RP' AND ls_return1-number = 60.
+      ls_return1-message_v1 = is_9018_io-pernr.
+    ENDIF.
+
+    IF ls_return1 IS INITIAL.
+      CALL FUNCTION 'HR_INFOTYPE_OPERATION'
+        EXPORTING
+          infty         = '9018'
+          number        = ls_prev_row-pernr
+          validityend   = ls_prev_row-endda
+          validitybegin = ls_prev_row-begda
+          record        = ls_prev_row
+          operation     = 'DEL'
+        IMPORTING
+          return        = ls_return1
+        EXCEPTIONS
+          OTHERS        = 0.
+
+      CALL FUNCTION 'BAPI_EMPLOYEE_DEQUEUE'
+        EXPORTING
+          number = is_9018_io-pernr.
+    ENDIF.
+
+    CHECK ls_return1 IS NOT INITIAL.
+    "MESSAGE ID sy-msgid TYPE 'E' NUMBER sy-msgno WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO rv_error.
+    MESSAGE ID ls_return1-id TYPE 'E' NUMBER ls_return1-number
+       WITH ls_return1-message_v1 ls_return1-message_v2 ls_return1-message_v3 ls_return1-message_v4 INTO rv_error.
+  ENDMETHOD.
+
+
   METHOD _get_employee_photo.
     DATA lt_connection TYPE STANDARD TABLE OF bdn_con.
     CALL FUNCTION 'BDS_ALL_CONNECTIONS_GET'
@@ -261,19 +394,20 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
 
 
   METHOD _get_paris_info.
-    SELECT SINGLE grp_text INTO @DATA(lv_paris_sheet)
-    FROM zvchr231_group
-    WHERE grp_id = '2'.
-    CHECK lv_paris_sheet IS NOT INITIAL.
+*    SELECT SINGLE grp_text INTO @DATA(lv_paris_sheet)
+*    FROM zvchr231_group
+*    WHERE grp_id = '2'.
+*    CHECK lv_paris_sheet IS NOT INITIAL.
 
     DATA(lv_datum) = sy-datum.
-    LOOP AT it_sheet ASSIGNING FIELD-SYMBOL(<ls_paris_sheet>) WHERE name = lv_paris_sheet.
+    LOOP AT it_sheet ASSIGNING FIELD-SYMBOL(<ls_paris_sheet>). " WHERE name = lv_paris_sheet.
       DATA(lt_info) = <ls_paris_sheet>-t[].
       SORT lt_info.
       DELETE ADJACENT DUPLICATES FROM lt_info.
 
       LOOP AT lt_info ASSIGNING FIELD-SYMBOL(<ls_info>).
         APPEND CORRESPONDING #( <ls_info> ) TO rs_paris_info-t ASSIGNING FIELD-SYMBOL(<ls_detail_info>).
+        REPLACE ALL OCCURRENCES OF cl_abap_char_utilities=>newline IN <ls_detail_info>-notes WITH cl_abap_char_utilities=>cr_lf.
 
 ***********************************
         DATA(ls_0001) = CAST p0001( zcl_hr_read=>infty_row(
@@ -343,7 +477,7 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
 
 
   METHOD _get_root.
-    SELECT * INTO TABLE @DATA(lt_alv)
+    SELECT pernr, begda, endda, eid, role_text, ename, grp_text, grp_id, letter, notes, kz, en, ru INTO TABLE @DATA(lt_alv)
     FROM zc_hr231_emergency_role
     WHERE (iv_filter)
     ORDER BY grp_text.

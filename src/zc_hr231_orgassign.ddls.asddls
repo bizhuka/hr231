@@ -6,9 +6,9 @@
 @Search.searchable
 
 
-@ZABAP.virtualEntity: 'ZCL_HR231_ORG_FILTER'
+//@ZABAP.virtualEntity: 'ZCL_HR231_ORG_FILTER'
 
-define view ZC_HR231_OrgAssign as select distinct from pa0001 as _main
+define view ZC_HR231_OrgAssign as select distinct from ZC_HR231_PA0001 as _main
 association [0..1] to t001p on t001p.werks = _main.werks
                            and t001p.btrtl = _main.btrtl
 
@@ -46,6 +46,7 @@ association [0..1] to t513s  on t513s.sprsl = $session.system_language
     key sprps,
     key endda,
     key begda,
+    key mandt,
     
         //bukrs,
         
@@ -89,4 +90,5 @@ association [0..1] to t513s  on t513s.sprsl = $session.system_language
         @ObjectModel.text.element: ['stell_txt']
         stell,
         t513s.stltx as stell_txt   
-}
+}where begda <= datum
+   and endda >= datum

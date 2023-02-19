@@ -1,0 +1,30 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:f="sap.ui.layout.form" xmlns:core="sap.ui.core">
+    <ResponsivePopover id="detailsPopover" title="Information" class="sapUiResponsivePadding--header" placement="Auto">
+        <beginButton>
+            <Button text="Edit" type="Emphasized" press="handleEditButton" />
+        </beginButton>
+        <endButton>
+            <Button text="Delete" press="handlePopoverDeleteButton" />
+        </endButton>
+        <f:SimpleForm editable="false" layout="ResponsiveGridLayout" singleContainerFullSize="false">
+
+            <Label text="Employee Name" labelFor="moreInfo" />
+            <Text text="{item>/ename}" />
+
+            <Label text="Personnel Number" labelFor="moreInfo" />
+            <Text text="{path : 'item>/pernr', type : 'sap.ui.model.odata.type.String', constraints : {isDigitSequence : true, maxLength : 8 }}" />
+
+            <Label text="From" labelFor="startDate" />
+            <Text text="{ path: 'item>/start', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd.MM.yyyy', UTC: true } }" />
+
+            <Label text="To" labelFor="endDate" />
+            <Text text="{ path: 'item>/end', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd.MM.yyyy', UTC: true } }" />
+
+            <Label text="Type" labelFor="appType" />
+            <Text text="{item>/title}" />
+
+            <Label text="Notes" />
+            <Text text="{item>/notes}" />
+        </f:SimpleForm>
+    </ResponsivePopover>
+</core:FragmentDefinition>

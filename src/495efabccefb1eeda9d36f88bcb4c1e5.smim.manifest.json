@@ -134,7 +134,7 @@
                                               },
                                       
                                               "sap.suite.ui.generic.template.ObjectPage.view.Details": {
-                                                "AfterFacet|ZC_HR231_Emergency_Role|GeneralInfo": {
+                                                "BeforeFacet|ZC_HR231_Emergency_Role|GeneralInfo": {
                                                   "className": "sap.ui.core.Fragment",
                                                   "fragmentName": "zhr231.ext.fragment.TeamContainer",
                                                   "type": "XML",
@@ -154,9 +154,10 @@
       "objectPageHeaderType": "Dynamic",
       "considerAnalyticalParameters": true,
       "showDraftToggle": false,
-                "flexibleColumnLayout": {
-                    "defaultTwoColumnLayoutType": "TwoColumnsMidExpanded"
-                }
+                                        "flexibleColumnLayout": {
+                                          "defaultTwoColumnLayoutType": "TwoColumnsMidExpanded",
+                                          "defaultThreeColumnLayoutType": "ThreeColumnsMidExpanded"
+                                        }
     },
     "pages": {
       "ListReport|ZC_HR231_Emergency_Role": {
@@ -179,7 +180,8 @@
                                               "fields" : {
                                                   "pernr":{"path": "pernr"},
                                                   "begda":{"path": "begda"},
-                                                  "endda":{"path": "endda"}
+                                                  "endda":{"path": "endda"},
+                                                  "notes":{"path": "notes"}
                                               },
                                                   "eid":{"path": "eid", "comment": "Use ZDHR231_EMR_DEF table"}
                                             }
@@ -192,15 +194,15 @@
             "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
             "component": {
               "name": "sap.suite.ui.generic.template.ObjectPage"
-            }
-          },
-          "pages": {
-            "ObjectPage|to_Text": {
-              "navigationProperty": "to_Text",
-              "entitySet": "ZC_HR231_EmergeRoleText",
-              "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
-              "component": {
-                "name": "sap.suite.ui.generic.template.ObjectPage"
+            },
+            "pages": {            
+              "ObjectPage|to_FakeConn": {
+                "navigationProperty": "to_FakeConn",
+                "entitySet": "ZC_HR231_Defaults",
+                "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
+                "component": {
+                  "name": "sap.suite.ui.generic.template.ObjectPage"
+                }
               }
             }
           }

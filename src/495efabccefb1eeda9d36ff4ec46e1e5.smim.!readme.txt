@@ -9,3 +9,17 @@ Copy \dist\Component-preload.js   file to   webapp\ folder
 delete! dist\ & node_modules\ folders
 
 run SE38-> BSP_UPDATE_MIMEREPOS
+
+
+Clean caches
+/IWFND/CACHE_CLEANUP
+/IWBEP/CACHE_CLEANUP
+
+/UI2/INVALIDATE_CLIENT_CACHES
+/UI2/INVALIDATE_GLOBAL_CACHES
+
+Activation
+/IWFND/IWF_ACTIVATE
+
+Update where used table index
+SAPRSEUC 

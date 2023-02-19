@@ -1,13 +1,15 @@
-CLASS zcl_hr231_odata_model DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+class ZCL_HR231_ODATA_MODEL definition
+  public
+  final
+  create public .
 
-  PUBLIC SECTION.
+public section.
 
-    CLASS-METHODS define_model
-      IMPORTING
-        !io_model TYPE REF TO /iwbep/if_mgw_odata_model .
+  class-methods DEFINE_MODEL
+    importing
+      !IO_MODEL type ref to /IWBEP/IF_MGW_ODATA_MODEL
+    raising
+      /IWBEP/CX_MGW_MED_EXCEPTION .
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.

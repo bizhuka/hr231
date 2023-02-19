@@ -99,7 +99,7 @@ sap.ui.controller("zhr231.ext.controller.ListReportExtension", {
     _view.byId(_this._prefix + 'addEntry').attachPress(function () {
       const createDialog = _view.byId(_this._prefix + 'CreateWithDialog')
       if (createDialog && !createDialog.mEventRegistry.afterOpen) createDialog.attachAfterOpen(function () {
-        createDialog.setContentWidth('25em')
+        createDialog.setContentWidth('23em')
         const _byId = sap.ui.getCore().byId
         _byId('__form0').setTitle('Create Emergency Team Duty')
       })

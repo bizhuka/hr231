@@ -92,7 +92,7 @@
        <LINE>*                       processing before output</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE INIT_DIALOG.</LINE>
+       <LINE>  MODULE INIT_DIALOG.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*</LINE>
@@ -104,33 +104,12 @@
        <LINE>*                        processing after input</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE OPERATION.</LINE>
+       <LINE>  MODULE OPERATION.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW/>
       <RPY_DYFLOW/>
       <RPY_DYFLOW/>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -141,7 +120,7 @@
       <TYPE>N</TYPE>
       <NEXTSCREEN>2000</NEXTSCREEN>
       <LINES>021</LINES>
-      <COLUMNS>086</COLUMNS>
+      <COLUMNS>087</COLUMNS>
      </HEADER>
      <CONTAINERS>
       <RPY_DYCATT>
@@ -154,7 +133,7 @@
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>083</LENGTH>
+       <LENGTH>086</LENGTH>
        <HEIGHT>001</HEIGHT>
       </RPY_DYCATT>
       <RPY_DYCATT>
@@ -163,7 +142,7 @@
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>002</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>083</LENGTH>
+       <LENGTH>086</LENGTH>
        <HEIGHT>003</HEIGHT>
       </RPY_DYCATT>
      </CONTAINERS>
@@ -173,7 +152,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>P9018-BEGDA</NAME>
-       <TEXT>Start_</TEXT>
        <LINE>005</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>006</LENGTH>
@@ -190,7 +168,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-BEGDA</NAME>
-       <TEXT>__________</TEXT>
        <LINE>005</LINE>
        <COLUMN>013</COLUMN>
        <LENGTH>010</LENGTH>
@@ -199,7 +176,6 @@
        <GROUP1>00E</GROUP1>
        <FORMAT>DATS</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>O</REQU_ENTRY>
@@ -209,7 +185,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-ENDDA</NAME>
-       <TEXT>To_</TEXT>
        <LINE>005</LINE>
        <COLUMN>026</COLUMN>
        <LENGTH>003</LENGTH>
@@ -226,7 +201,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-ENDDA</NAME>
-       <TEXT>__________</TEXT>
        <LINE>005</LINE>
        <COLUMN>032</COLUMN>
        <LENGTH>010</LENGTH>
@@ -235,7 +209,6 @@
        <GROUP1>00E</GROUP1>
        <FORMAT>DATS</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>O</REQU_ENTRY>
@@ -245,7 +218,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>P9018-AEDTM</NAME>
-       <TEXT>Chngd</TEXT>
        <LINE>005</LINE>
        <COLUMN>045</COLUMN>
        <LENGTH>005</LENGTH>
@@ -262,7 +234,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-AEDTM</NAME>
-       <TEXT>__________</TEXT>
        <LINE>005</LINE>
        <COLUMN>051</COLUMN>
        <LENGTH>010</LENGTH>
@@ -271,7 +242,6 @@
        <GROUP1>800</GROUP1>
        <FORMAT>DATS</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>N</REQU_ENTRY>
       </RPY_DYFATC>
@@ -280,7 +250,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-UNAME</NAME>
-       <TEXT>____________</TEXT>
        <LINE>005</LINE>
        <COLUMN>062</COLUMN>
        <LENGTH>012</LENGTH>
@@ -289,7 +258,6 @@
        <GROUP1>800</GROUP1>
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>N</REQU_ENTRY>
       </RPY_DYFATC>
@@ -298,7 +266,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-SPRTX</NAME>
-       <TEXT>________________________________________</TEXT>
        <ROLLING>X</ROLLING>
        <LINE>005</LINE>
        <COLUMN>075</COLUMN>
@@ -308,7 +275,6 @@
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
        <UP_LOWER>X</UP_LOWER>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <OUTPUTONLY>X</OUTPUTONLY>
        <REQU_ENTRY>N</REQU_ENTRY>
@@ -350,7 +316,6 @@
        <FROM_DICT>X</FROM_DICT>
        <MODIFIC>X</MODIFIC>
        <UP_LOWER>X</UP_LOWER>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <REQU_ENTRY>N</REQU_ENTRY>
       </RPY_DYFATC>
@@ -359,17 +324,16 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>FRAME_TMPL</TYPE>
        <NAME>PSPAR-ITTXT</NAME>
-       <TEXT>__________________________________________________________________________________</TEXT>
+       <TEXT>_____________________________________________________________________________________</TEXT>
        <LINE>007</LINE>
        <COLUMN>001</COLUMN>
-       <LENGTH>083</LENGTH>
-       <VISLENGTH>083</VISLENGTH>
-       <HEIGHT>003</HEIGHT>
+       <LENGTH>086</LENGTH>
+       <VISLENGTH>086</VISLENGTH>
+       <HEIGHT>005</HEIGHT>
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
        <MODIFIC>X</MODIFIC>
        <UP_LOWER>X</UP_LOWER>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <FIXED_FONT>X</FIXED_FONT>
@@ -379,7 +343,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>P9018-EMERGROLE_ID</NAME>
-       <TEXT>Emergency_role_ID___</TEXT>
        <LINE>008</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>020</LENGTH>
@@ -395,7 +358,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-EMERGROLE_ID</NAME>
-       <TEXT>__</TEXT>
        <LINE>008</LINE>
        <COLUMN>023</COLUMN>
        <LENGTH>002</LENGTH>
@@ -414,7 +376,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>ZDHR231_EMERGROL-EMERGROLE</NAME>
-       <TEXT>______________________________</TEXT>
        <LINE>008</LINE>
        <COLUMN>028</COLUMN>
        <LENGTH>030</LENGTH>
@@ -423,11 +384,46 @@
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
        <UP_LOWER>X</UP_LOWER>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <OUTPUTONLY>X</OUTPUTONLY>
        <REQU_ENTRY>N</REQU_ENTRY>
        <_--32_DIMENS>X</_--32_DIMENS>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>P9018-NOTES</NAME>
+       <LINE>009</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>005</LENGTH>
+       <VISLENGTH>005</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <MODIFIC>2</MODIFIC>
+       <UP_LOWER>X</UP_LOWER>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <LABELLEFT>X</LABELLEFT>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>P9018-NOTES</NAME>
+       <TEXT>____________________________________________________________________________________________________________________________________</TEXT>
+       <ROLLING>X</ROLLING>
+       <LINE>010</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>200</LENGTH>
+       <VISLENGTH>084</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <MODIFIC>X</MODIFIC>
+       <UP_LOWER>X</UP_LOWER>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>SCREEN</CONT_TYPE>
@@ -450,25 +446,25 @@
        <LINE>*         general infotype-independent operations</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE BEFORE_OUTPUT.</LINE>
+       <LINE>  MODULE BEFORE_OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CALL SUBSCREEN subscreen_empl   INCLUDING empl_prog empl_dynnr.</LINE>
+       <LINE>  CALL SUBSCREEN subscreen_empl   INCLUDING empl_prog empl_dynnr.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CALL SUBSCREEN subscreen_header INCLUDING header_prog header_dynnr.</LINE>
+       <LINE>  CALL SUBSCREEN subscreen_header INCLUDING header_prog header_dynnr.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*         infotype specific operations</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE P9018.</LINE>
+       <LINE>  MODULE P9018.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE HIDDEN_DATA.</LINE>
+       <LINE>  MODULE HIDDEN_DATA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*</LINE>
@@ -486,7 +482,7 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE EXIT AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE EXIT AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -510,22 +506,22 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>  CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD P9018-BEGDA.</LINE>
+       <LINE>    FIELD P9018-BEGDA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD P9018-ENDDA.</LINE>
+       <LINE>    FIELD P9018-ENDDA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD P9018-EMERGROLE_ID.</LINE>
+       <LINE>    FIELD P9018-EMERGROLE_ID.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE INPUT_STATUS ON CHAIN-REQUEST.</LINE>
+       <LINE>    MODULE INPUT_STATUS ON CHAIN-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
+       <LINE>  ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -537,7 +533,7 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE PRE_INPUT_CHECKS.</LINE>
+       <LINE>  MODULE PRE_INPUT_CHECKS.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -570,86 +566,30 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>  CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD P9018-BEGDA.</LINE>
+       <LINE>    FIELD P9018-BEGDA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD P9018-ENDDA.</LINE>
+       <LINE>    FIELD P9018-ENDDA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD RP50M-SPRTX.</LINE>
+       <LINE>    FIELD RP50M-SPRTX.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD P9018-EMERGROLE_ID.</LINE>
+       <LINE>    FIELD P9018-EMERGROLE_ID.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE POST_INPUT_CHECKS.</LINE>
+       <LINE>    MODULE POST_INPUT_CHECKS.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
+       <LINE>  ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*</LINE>
       </RPY_DYFLOW>
-      <RPY_DYFLOW/>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-     </SPACES>
     </item>
     <item>
      <HEADER>
@@ -729,7 +669,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-BEGDA</NAME>
-       <TEXT>Choose_</TEXT>
        <LINE>005</LINE>
        <COLUMN>004</COLUMN>
        <LENGTH>007</LENGTH>
@@ -746,7 +685,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-BEGDA</NAME>
-       <TEXT>__________</TEXT>
        <LINE>005</LINE>
        <COLUMN>014</COLUMN>
        <LENGTH>010</LENGTH>
@@ -755,7 +693,6 @@
        <GROUP1>00F</GROUP1>
        <FORMAT>DATS</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
@@ -764,7 +701,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-ENDDA</NAME>
-       <TEXT>To_</TEXT>
        <LINE>005</LINE>
        <COLUMN>027</COLUMN>
        <LENGTH>003</LENGTH>
@@ -781,7 +717,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-ENDDA</NAME>
-       <TEXT>__________</TEXT>
        <LINE>005</LINE>
        <COLUMN>033</COLUMN>
        <LENGTH>010</LENGTH>
@@ -790,7 +725,6 @@
        <GROUP1>00F</GROUP1>
        <FORMAT>DATS</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
@@ -799,7 +733,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-SUBTY</NAME>
-       <TEXT>STy.</TEXT>
        <LINE>005</LINE>
        <COLUMN>050</COLUMN>
        <LENGTH>004</LENGTH>
@@ -817,7 +750,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-SUBTY</NAME>
-       <TEXT>____</TEXT>
        <LINE>005</LINE>
        <COLUMN>055</COLUMN>
        <LENGTH>004</LENGTH>
@@ -828,7 +760,6 @@
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
        <PARAM_ID>SUB</PARAM_ID>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
@@ -837,7 +768,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-ABGRD</NAME>
-       <TEXT>Delimit.Date</TEXT>
        <LINE>005</LINE>
        <COLUMN>060</COLUMN>
        <LENGTH>012</LENGTH>
@@ -855,7 +785,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-ABGRD</NAME>
-       <TEXT>__________</TEXT>
        <LINE>005</LINE>
        <COLUMN>073</COLUMN>
        <LENGTH>010</LENGTH>
@@ -865,7 +794,6 @@
        <GROUP3>050</GROUP3>
        <FORMAT>DATS</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
@@ -874,7 +802,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-PAGEA</NAME>
-       <TEXT>Entry_____</TEXT>
        <LINE>035</LINE>
        <COLUMN>059</COLUMN>
        <LENGTH>010</LENGTH>
@@ -891,7 +818,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-PAGEA</NAME>
-       <TEXT>___</TEXT>
        <LINE>035</LINE>
        <COLUMN>070</COLUMN>
        <LENGTH>003</LENGTH>
@@ -900,7 +826,6 @@
        <GROUP1>00F</GROUP1>
        <FORMAT>NUMC</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <RIGHT_JUST>X</RIGHT_JUST>
@@ -910,7 +835,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-PAGEC</NAME>
-       <TEXT>of_</TEXT>
        <LINE>035</LINE>
        <COLUMN>074</COLUMN>
        <LENGTH>003</LENGTH>
@@ -927,7 +851,6 @@
        <CONT_NAME>SCREEN</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-PAGEC</NAME>
-       <TEXT>___</TEXT>
        <LINE>035</LINE>
        <COLUMN>078</COLUMN>
        <LENGTH>003</LENGTH>
@@ -935,7 +858,6 @@
        <HEIGHT>001</HEIGHT>
        <FORMAT>NUMC</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <OUTPUTONLY>X</OUTPUTONLY>
        <REQU_ENTRY>N</REQU_ENTRY>
@@ -958,7 +880,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>RP50M-CNTXT</NAME>
-       <TEXT>Valid_for________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>025</LENGTH>
@@ -976,7 +897,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>*P9018-BEGDA</NAME>
-       <TEXT>Start_Date</TEXT>
        <LINE>001</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>010</LENGTH>
@@ -993,7 +913,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>*P9018-ENDDA</NAME>
-       <TEXT>End_Date__</TEXT>
        <LINE>001</LINE>
        <COLUMN>003</COLUMN>
        <LENGTH>010</LENGTH>
@@ -1010,7 +929,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>*P9018-EMERGROLE_ID</NAME>
-       <TEXT>Em</TEXT>
        <LINE>001</LINE>
        <COLUMN>004</COLUMN>
        <LENGTH>002</LENGTH>
@@ -1027,7 +945,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEXT</TYPE>
        <NAME>*RP50M-SPRTX</NAME>
-       <TEXT>Lock_indicator__________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>005</COLUMN>
        <LENGTH>040</LENGTH>
@@ -1051,7 +968,6 @@
        <GROUP1>011</GROUP1>
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
        <TC_SELCOL>X</TC_SELCOL>
@@ -1062,7 +978,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-CNTXT</NAME>
-       <TEXT>_________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>025</LENGTH>
@@ -1071,7 +986,6 @@
        <FORMAT>CHAR</FORMAT>
        <FROM_DICT>X</FROM_DICT>
        <UP_LOWER>X</UP_LOWER>
-       <FOREIGNKEY>X</FOREIGNKEY>
        <INPUT_FLD>X</INPUT_FLD>
        <OUTPUT_FLD>X</OUTPUT_FLD>
       </RPY_DYFATC>
@@ -1080,7 +994,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-BEGDA</NAME>
-       <TEXT>__________</TEXT>
        <LINE>001</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>010</LENGTH>
@@ -1098,7 +1011,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-ENDDA</NAME>
-       <TEXT>__________</TEXT>
        <LINE>001</LINE>
        <COLUMN>003</COLUMN>
        <LENGTH>010</LENGTH>
@@ -1116,7 +1028,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>P9018-EMERGROLE_ID</NAME>
-       <TEXT>__</TEXT>
        <LINE>001</LINE>
        <COLUMN>004</COLUMN>
        <LENGTH>002</LENGTH>
@@ -1134,7 +1045,6 @@
        <CONT_NAME>TC3000</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>RP50M-SPRTX</NAME>
-       <TEXT>________________________________________</TEXT>
        <ROLLING>X</ROLLING>
        <LINE>001</LINE>
        <COLUMN>005</COLUMN>
@@ -1164,16 +1074,16 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE BEFORE_OUTPUT.</LINE>
+       <LINE>  MODULE BEFORE_OUTPUT.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CALL SUBSCREEN subscreen_empl INCLUDING empl_prog empl_dynnr.</LINE>
+       <LINE>  CALL SUBSCREEN subscreen_empl INCLUDING empl_prog empl_dynnr.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE ASSIGN_TC3000.</LINE>
+       <LINE>  MODULE ASSIGN_TC3000.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE VARIATION_TC.</LINE>
+       <LINE>  MODULE VARIATION_TC.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -1185,10 +1095,10 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>LOOP.</LINE>
+       <LINE>  LOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE PSLIST_TC.</LINE>
+       <LINE>    MODULE PSLIST_TC.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -1200,13 +1110,13 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE P9018L.</LINE>
+       <LINE>    MODULE P9018L.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CALL SUBSCREEN SUBSCREEN_HEADER INCLUDING HEADER_PROG HEADER_DYNNR.</LINE>
+       <LINE>  CALL SUBSCREEN SUBSCREEN_HEADER INCLUDING HEADER_PROG HEADER_DYNNR.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*</LINE>
@@ -1224,7 +1134,7 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE EXIT AT EXIT-COMMAND.</LINE>
+       <LINE>  MODULE EXIT AT EXIT-COMMAND.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -1236,13 +1146,13 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>LOOP.</LINE>
+       <LINE>  LOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD RP50M-SELE2 MODULE MARK ON REQUEST.</LINE>
+       <LINE>    FIELD RP50M-SELE2 MODULE MARK ON REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDLOOP.</LINE>
+       <LINE>  ENDLOOP.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -1257,31 +1167,31 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CALL SUBSCREEN subscreen_empl.</LINE>
+       <LINE>  CALL SUBSCREEN subscreen_empl.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>CHAIN.</LINE>
+       <LINE>  CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD RP50M-BEGDA.</LINE>
+       <LINE>    FIELD RP50M-BEGDA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD RP50M-ENDDA.</LINE>
+       <LINE>    FIELD RP50M-ENDDA.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD RP50M-SUBTY.</LINE>
+       <LINE>    FIELD RP50M-SUBTY.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE SELECT_FOR_LIST ON CHAIN-REQUEST.</LINE>
+       <LINE>    MODULE SELECT_FOR_LIST ON CHAIN-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>ENDCHAIN.</LINE>
+       <LINE>  ENDCHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>FIELD RP50M-PAGEA ON REQUEST MODULE TOP_OF_LIST.</LINE>
+       <LINE>  FIELD RP50M-PAGEA ON REQUEST MODULE TOP_OF_LIST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE ADJUST_LIST_TC.</LINE>
+       <LINE>  MODULE ADJUST_LIST_TC.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>*---------------------------------------------------------------------*</LINE>
@@ -1293,59 +1203,9 @@
        <LINE>*---------------------------------------------------------------------*</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>MODULE POST_INPUT_CHECKS.</LINE>
+       <LINE>  MODULE POST_INPUT_CHECKS.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
-     <SPACES>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>4</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>4</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-      <item>2</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>4</item>
-      <item>2</item>
-      <item>2</item>
-      <item>2</item>
-      <item>0</item>
-      <item>0</item>
-      <item>0</item>
-      <item>2</item>
-     </SPACES>
     </item>
    </DYNPROS>
    <CUA>
