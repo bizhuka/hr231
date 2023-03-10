@@ -16,7 +16,8 @@ CLASS zcl_hr231_options DEFINITION
       tt_email TYPE SORTED TABLE OF ts_email WITH UNIQUE KEY emergrole_id.
 
     DATA:
-      t_email TYPE tt_email READ-ONLY.
+      t_email          TYPE tt_email READ-ONLY,
+      r_admin_agr_name TYPE RANGE OF agr_users-agr_name READ-ONLY.
 
     CLASS-METHODS:
       get_instance RETURNING VALUE(ro_instance) TYPE REF TO zcl_hr231_options.

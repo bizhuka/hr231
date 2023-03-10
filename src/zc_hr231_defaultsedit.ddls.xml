@@ -3,9 +3,9 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <DDLS>
-    <DDLNAME>ZC_HR231_PA0001</DDLNAME>
+    <DDLNAME>ZC_HR231_DEFAULTSEDIT</DDLNAME>
     <DDLANGUAGE>E</DDLANGUAGE>
-    <DDTEXT>PA0001</DDTEXT>
+    <DDTEXT>Edit version of ZC_HR231_Defaults</DDTEXT>
    </DDLS>
   </asx:values>
  </asx:abap>

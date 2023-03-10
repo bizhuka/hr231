@@ -2,7 +2,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 
 	_prefix: 'zhr231::sap.suite.ui.generic.template.ObjectPage.view.Details::ZC_HR231_Emergency_Role--',
 	_data: {
-		title: 'Team Calendar',
+		singleTitle: '',
 		startDate: new Date(),
 		viewKey: "Week",
 		supportedAppointmentItems: [],
@@ -19,10 +19,8 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 
 		this._oModel = new sap.ui.model.json.JSONModel()
 		this._oModel.setData(this._data)
-
-		this._oCalendarContainer = this.byId(this._prefix + "TeamContainer")
+		this._oCalendarContainer = sap.ui.getCore().byId(this._prefix + "TeamContainer")
 		this._mCalendars = {}
-		this._sCalendarDisplayed = ''
 		this._sSelectedView = this._data.viewKey
 		this._loadCalendar("PlanningCalendar")
 	},
@@ -53,43 +51,33 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		}.bind(this));
 	},
 
-	_hideCalendar: function () {
-		if (this._sCalendarDisplayed === '') {
-			return Promise.resolve();
-		}
-		return this._mCalendars[this._sCalendarDisplayed].then(function (oOldCalendarVBox) {
-			this._oCalendarContainer.removeContent(oOldCalendarVBox);
-		}.bind(this));
-	},
-
 	// Displays already loaded calendar
 	_displayCalendar: function (sCalendarId, oCalendarVBox) {
-		this._hideCalendar().then(function () {
-			this._oCalendarContainer.addContent(oCalendarVBox);
-			this._sCalendarDisplayed = sCalendarId;
-			var oCalendar = oCalendarVBox.getItems()[0];
-			var oTeamSelect = this.byId(sCalendarId + "TeamSelector");
-			oTeamSelect.setSelectedKey(this._sSelectedMember);
+		this._oCalendarContainer.removeAllContent()
 
-			// oCalendar.setStartDate(this._data.startDate);
-			if (isNaN(this._sSelectedMember)) {
-				// Planning Calendar
-				//oCalendar.setViewKey(this._sSelectedView);
-				oCalendar.setViewKey("Week")
-				oCalendar.bindElement({
-					path: "/team",
-					model: "calendar"
-				});
-			} else {
-				// Single Planning Calendar
-				//oCalendar.setSelectedView(oCalendar.getViewByKey(this._sSelectedView));
-				oCalendar.setSelectedView(oCalendar.getViewByKey("OneMonth"))
-				oCalendar.bindElement({
-					path: "/team/" + this._sSelectedMember,
-					model: "calendar"
-				});
-			}
-		}.bind(this));
+		this._oCalendarContainer.addContent(oCalendarVBox);
+		var oCalendar = oCalendarVBox.getItems()[0];
+		var oTeamSelect = this.byId(sCalendarId + "TeamSelector");
+		oTeamSelect.setSelectedKey(this._sSelectedMember);
+
+		// oCalendar.setStartDate(this._data.startDate);
+		if (isNaN(this._sSelectedMember)) {
+			// Planning Calendar
+			//oCalendar.setViewKey(this._sSelectedView);
+			oCalendar.setViewKey("Week")
+			oCalendar.bindElement({
+				path: "/team",
+				model: "calendar"
+			});
+		} else {
+			// Single Planning Calendar
+			//oCalendar.setSelectedView(oCalendar.getViewByKey(this._sSelectedView));
+			oCalendar.setSelectedView(oCalendar.getViewByKey("OneMonth"))
+			oCalendar.bindElement({
+				path: "/team/" + this._sSelectedMember,
+				model: "calendar"
+			});
+		}
 	},
 
 	update_1_appointment: function (message, delApp, insApp) {
@@ -135,7 +123,9 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		for (objPerson of items) {
 			const line = team[objPerson.pernr] || {
 				personID: objPerson.pernr,
-				pic: objPerson.__metadata.media_src.replace("eid='" + objPerson.eid + "'", "eid='98'") + "?sap-client=300",
+				// __metadata.media_src  objPerson.photo_path +
+				pic: document.location.origin + "/sap/opu/odata/sap/ZC_PY000_ORGASSIGNMENT_CDS/ZC_PY000_PernrPhoto(pernr='" + objPerson.pernr +
+						 "')/$value?sap-client=300&$filter=" + encodeURIComponent('img_size eq 64'),
 				name: objPerson.ename,
 				role: objPerson.plans_txt,
 				appointments: [],
@@ -176,9 +166,19 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		}
 
 		if (begda)
-			this._data.startDate = this.getFixedDate(this.getMonday(begda))
+			this._setStartDate(this.getFixedDate(this.getMonday(begda)))
 
 		this._refreshCalendar()
+	},
+
+	_setStartDate: function (date) {
+		this._data.startDate = date
+		this._data.singleTitle = date.getFullYear() + " - " + date.toLocaleString('default', { month: 'long' })
+	},
+
+	// Saves currently selected date
+	startDateChangeHandler: function (oEvent) {
+		this._setStartDate(new Date(oEvent.getSource().getStartDate()))
 	},
 
 	onAfterRendering: function () {
@@ -186,7 +186,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		if (!window._main_table)
 			this.getView().getModel().read("/ZC_HR231_Emergency_Role", {
 				urlParameters: {
-					"$select": "pernr,role_text,begda,endda,ename,plans_txt,grp_text,notes,eid",
+					"$select": "pernr,role_text,begda,endda,ename,plans_txt,grp_text,notes,eid,photo_path",
 					"$filter": "(begda ge datetime'" + _this.getDateIso(new Date(new Date().getFullYear(), 0, 1)) + "T00:00:00' and begda le datetime'" + _this.getDateIso(new Date()) + "T00:00:00')"
 				},
 				success: function (data) {
@@ -221,7 +221,8 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 
 	// TODO make lib
 	getDateIso: function (date) {
-		return date.toISOString().split('T')[0]
+		const okDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000))
+		return okDate.toISOString().split('T')[0]
 	},
 
 	// Saves currently selected view
@@ -233,7 +234,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 		} else {
 			this._sSelectedView = oCore.byId(oCalendar.getSelectedView()).getKey();
 		}
-		oCalendar.setStartDate(this._data.startDate);
+		//oCalendar.setStartDate(this._data.startDate);
 	},
 
 	// Opend a legend
@@ -288,11 +289,6 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 				_this.details = new Details(_this)
 			_this.details.showPopup(oAppointment)
 		})
-	},
-
-	// Saves currently selected date
-	startDateChangeHandler: function (oEvent) {
-		this._data.startDate = new Date(oEvent.getSource().getStartDate());
 	},
 
 	// // Handler of the "Create" button

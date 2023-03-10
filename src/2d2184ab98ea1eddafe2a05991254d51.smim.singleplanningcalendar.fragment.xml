@@ -11,6 +11,7 @@
 			appointments="{calendar>appointments}"
 			startDate="{calendar>/startDate}"
 			appointmentSelect=".handleAppointmentSelect"
+			title="{calendar>/singleTitle}"
 			firstDayOfWeek="1">
 			<zz:actions>
                 <Select id="SinglePlanningCalendarTeamSelector" change=".selectChangeHandler"  items="{ path: 'calendar>/selector' }">

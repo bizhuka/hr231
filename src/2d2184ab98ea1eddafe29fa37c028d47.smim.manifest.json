@@ -93,7 +93,7 @@
           "defaultCountMode": "Inline",
           "refreshAfterChange": false,
           "metadataUrlParams": {
-            "sap-value-list": "none"
+            "sap-value-list": "all"
           }
         }
       },
@@ -196,9 +196,9 @@
               "name": "sap.suite.ui.generic.template.ObjectPage"
             },
             "pages": {            
-              "ObjectPage|to_FakeConn": {
-                "navigationProperty": "to_FakeConn",
-                "entitySet": "ZC_HR231_Defaults",
+              "ObjectPage|to_DefaultsEdit": {
+                "navigationProperty": "to_DefaultsEdit",
+                "entitySet": "ZC_HR231_DefaultsEdit",
                 "defaultLayoutTypeIfExternalNavigation": "MidColumnFullScreen",
                 "component": {
                   "name": "sap.suite.ui.generic.template.ObjectPage"

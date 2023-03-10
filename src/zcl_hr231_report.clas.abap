@@ -1,14 +1,19 @@
 CLASS zcl_hr231_report DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
 
-    INTERFACES zif_sadl_exit .
-    INTERFACES zif_sadl_stream_runtime .
-    INTERFACES zif_sadl_read_runtime .
-    INTERFACES zif_sadl_delete_runtime .
+    INTERFACES: zif_sadl_exit,
+      zif_sadl_stream_runtime,
+      zif_sadl_read_runtime,
+      zif_sadl_delete_runtime,
+      zif_sadl_mpc.
+
+    METHODS:
+      check_authorization RETURNING VALUE(rv_error) TYPE string.
+
   PROTECTED SECTION.
   PRIVATE SECTION.
     CONSTANTS:
@@ -69,9 +74,6 @@ CLASS zcl_hr231_report DEFINITION
       _get_paris_info IMPORTING it_sheet             TYPE tt_sheet
                       RETURNING VALUE(rs_paris_info) TYPE ts_paris_info,
 
-      _get_employee_photo IMPORTING iv_pernr TYPE pernr-pernr RETURNING VALUE(rv_photo) TYPE xstring,
-      _get_small_icon     IMPORTING iv_photo TYPE xstring RETURNING VALUE(rv_icon) TYPE xstring,
-
       _check_has_default IMPORTING ir_9018_io      TYPE REF TO ts_9018_io
                          RETURNING VALUE(rv_error) TYPE string,
 
@@ -90,16 +92,32 @@ ENDCLASS.
 CLASS ZCL_HR231_REPORT IMPLEMENTATION.
 
 
+  METHOD check_authorization.
+    DATA(lr_admin_agr_name) = zcl_hr231_options=>get_instance( )->r_admin_agr_name.
+    SELECT SINGLE @abap_true INTO @DATA(lv_ok) "#EC CI_GENBUFF
+    FROM agr_users
+    WHERE agr_name IN @lr_admin_agr_name
+      AND uname    EQ @sy-uname
+      AND from_dat LE @sy-datum
+      AND to_dat   GE @sy-datum.
+    CHECK lv_ok <> abap_true.
+
+    rv_error = |No rights to change 'Emergency roles'. Please contact HR support team|.
+  ENDMETHOD.
+
+
   METHOD zif_sadl_delete_runtime~execute.
     LOOP AT it_key_values ASSIGNING FIELD-SYMBOL(<ls_item>).
       DATA(lv_tabix) = sy-tabix.
 
-      DATA(ls_item) = CORRESPONDING ts_9018_io( <ls_item> ).
-      ls_item-prev_begda   = ls_item-begda.
-      ls_item-prev_endda   = ls_item-endda.
-      ls_item-emergrole_id = ls_item-eid.
-
-      DATA(lv_error) = _delete_previous( ls_item ).
+      DATA(lv_error) = check_authorization( ).
+      IF lv_error IS INITIAL.
+        DATA(ls_item) = CORRESPONDING ts_9018_io( <ls_item> ).
+        ls_item-prev_begda   = ls_item-begda.
+        ls_item-prev_endda   = ls_item-endda.
+        ls_item-eid          = ls_item-eid.
+        lv_error = _delete_previous( ls_item ).
+      ENDIF.
       CHECK lv_error IS NOT INITIAL.
 
       INSERT lv_tabix INTO TABLE et_failed[].
@@ -114,37 +132,57 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_sadl_mpc~define.
+    DATA(lo_entity) = io_model->get_entity_type( 'ZC_HR231_Emergency_RoleType' ).
+
+    lo_entity->set_is_media( abap_true ).
+    lo_entity->get_property( 'pernr' )->set_as_content_type( ).
+    lo_entity->get_property( 'begda' )->set_as_content_type( ).
+    lo_entity->get_property( 'endda' )->set_as_content_type( ).
+    lo_entity->get_property( 'eid' )->set_as_content_type( ).
+
+**********************************************************************
+**********************************************************************
+
+    DATA(lc_fixed_values) = /iwbep/if_mgw_odata_property=>gcs_value_list_type_property-fixed_values.
+
+    io_model->get_entity_type( 'ZC_HR231_EmergeRoleTextType' )->get_property( 'eid' )->set_value_list( lc_fixed_values ).
+    io_model->get_entity_type( 'ZC_HR231_Emergency_RoleType' )->get_property( 'eid' )->set_value_list( lc_fixed_values ).
+    io_model->get_entity_type( 'ZC_HR231_DefaultsType' )->get_property( 'emergrole_id' )->set_value_list( lc_fixed_values ).
+    io_model->get_entity_type( 'ZC_HR231_DefaultsEditType' )->get_property( 'emergrole_id' )->set_value_list( lc_fixed_values ).
+
+    io_model->get_entity_type( 'ZC_HR231_Emergency_RoleType' )->get_property( 'grp_id' )->set_value_list( lc_fixed_values ).
+    io_model->get_entity_type( 'ZC_HR231_EmergeRoleTextType' )->get_property( 'grp_id' )->set_value_list( lc_fixed_values ).
+    io_model->get_entity_type( 'ZC_HR231_GroupType' )->get_property( 'grp_id' )->set_value_list( lc_fixed_values ).
+
+  ENDMETHOD.
+
+
   METHOD zif_sadl_read_runtime~execute.
-    TYPES:
-      BEGIN OF ts_image,
-        " Importing
-        pernr      TYPE pernr-pernr,
-        " Exporting
-        photo_path TYPE text255,
-      END OF ts_image .
-
-    cl_http_server=>if_http_server~get_location(
-      IMPORTING host         = DATA(lv_host)
-                port         = DATA(lv_port)
-                out_protocol = DATA(lv_protocol) ).
-
-    LOOP AT ct_data_rows ASSIGNING FIELD-SYMBOL(<ls_row>).
-
-      DATA(ls_photo) = CORRESPONDING ts_image( <ls_row> ).
-      ls_photo-photo_path = |{ lv_protocol }://{ lv_host }:{ lv_port }/sap/opu/odata/sap/ZC_HR231_EMERGENCY_ROLE_CDS/ZC_HR231_Emergency_Role(pernr='{
-         ls_photo-pernr }',begda=datetime'2000-01-01T00%3A00%3A00',endda=datetime'2000-01-01T00%3A00%3A00',eid='{ ms_const-photo_normal_eid }')/$value?sap-client={ sy-mandt }|.
-
-      MOVE-CORRESPONDING: ls_photo TO <ls_row>.
-    ENDLOOP.
+*    TYPES:
+*      BEGIN OF ts_image,
+*      END OF ts_image.
+*
+*    LOOP AT ct_data_rows ASSIGNING FIELD-SYMBOL(<ls_row>).
+*
+*      DATA(ls_photo) = CORRESPONDING ts_image( <ls_row> ).
+*      ls_photo-
+*      MOVE-CORRESPONDING: ls_photo TO <ls_row>.
+*    ENDLOOP.
   ENDMETHOD.
 
 
   METHOD zif_sadl_stream_runtime~create_stream.
-    DATA(ls_9018_io) = VALUE ts_9018_io( ).
-    /ui2/cl_json=>deserialize( EXPORTING jsonx = is_media_resource-value CHANGING data = ls_9018_io ).
+    " № 0
+    DATA(lv_error) = check_authorization( ).
 
     " № 1
-    DATA(lv_error) = _check_has_default( REF #( ls_9018_io ) ).
+    IF lv_error IS INITIAL.
+      DATA(ls_9018_io) = VALUE ts_9018_io( ).
+      /ui2/cl_json=>deserialize( EXPORTING jsonx = is_media_resource-value
+                                 CHANGING  data  = ls_9018_io ).
+      lv_error = _check_has_default( REF #( ls_9018_io ) ).
+    ENDIF.
 
     " № 2
     IF lv_error IS INITIAL.
@@ -196,26 +234,10 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
     ENDLOOP.
 
 **********************************************************************
-    " Photo
-    IF ls_key-pernr IS NOT INITIAL AND ( ls_key-eid = ms_const-photo_normal_eid OR ls_key-eid = ms_const-photo_icon_eid ).
-      DATA(lv_content)   = _get_employee_photo( ls_key-pernr ).
-      IF ls_key-eid = ms_const-photo_icon_eid.
-        lv_content = _get_small_icon( lv_content ).
-      ENDIF.
-      IF lv_content IS INITIAL.
-        lv_content = cl_http_utility=>decode_x_base64( 'Qk06AAAAAAAAADYAAAAoAAAAAQAAAAEAAAABABgAAAAAAAQAAADEDgAAxA4AAAAAAAAAAAAA////AA==' ).
-      ENDIF.
-
-      DATA(lv_mime_type) = |image/jpeg|.
-      io_srv_runtime->set_header(
-           VALUE #( name  = 'Content-Disposition'
-                    value = |inline; filename="ok.jpg"| ) ).
-**********************************************************************
-      " Report
-    ELSEIF ls_key-pernr IS INITIAL AND iv_filter IS NOT INITIAL.
-      lv_content = _make_report( io_xtt    = NEW zcl_xtt_excel_xlsx( NEW zcl_xtt_file_smw0( 'ZR_HR231_EMERGDUTY.XLSX' ) )
-                                 iv_filter = iv_filter ).
-      lv_mime_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'.
+    IF ls_key-pernr IS INITIAL AND iv_filter IS NOT INITIAL.
+      DATA(lv_content) = _make_report( io_xtt    = NEW zcl_xtt_excel_xlsx( NEW zcl_xtt_file_smw0( 'ZR_HR231_EMERGDUTY.XLSX' ) )
+                                       iv_filter = iv_filter ).
+      DATA(lv_mime_type) = |application/vnd.openxmlformats-officedocument.spreadsheetml.sheet|.
 
       io_srv_runtime->set_header(
            VALUE #( name  = 'Content-Disposition'
@@ -315,7 +337,7 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
            iv_begda   = is_9018_io-prev_begda
            iv_endda   = is_9018_io-prev_endda
            iv_no_auth = abap_true
-           iv_where   = |EMERGROLE_ID = '{ is_9018_io-emergrole_id }'|
+           iv_where   = |EMERGROLE_ID = '{ is_9018_io-eid }'|
            is_default = VALUE p9018( ) ) )->*.
     IF ls_prev_row IS INITIAL.
       rv_error = |Items { is_9018_io-prev_begda DATE = USER } { is_9018_io-prev_endda DATE = USER } not found|.
@@ -356,40 +378,6 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
     "MESSAGE ID sy-msgid TYPE 'E' NUMBER sy-msgno WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4 INTO rv_error.
     MESSAGE ID ls_return1-id TYPE 'E' NUMBER ls_return1-number
        WITH ls_return1-message_v1 ls_return1-message_v2 ls_return1-message_v3 ls_return1-message_v4 INTO rv_error.
-  ENDMETHOD.
-
-
-  METHOD _get_employee_photo.
-    DATA lt_connection TYPE STANDARD TABLE OF bdn_con.
-    CALL FUNCTION 'BDS_ALL_CONNECTIONS_GET'
-      EXPORTING
-        classname       = 'PREL'
-        classtype       = 'CL'
-        objkey          = CONV swotobjid-objkey( iv_pernr && '%' )
-      TABLES
-        all_connections = lt_connection
-      EXCEPTIONS
-        OTHERS          = 0.
-    LOOP AT lt_connection ASSIGNING FIELD-SYMBOL(<ls_connection>) WHERE doc_type EQ 'HRICOLFOTO' OR doc_type EQ 'HRIEMPFOTO'.
-      DATA(lt_info) = VALUE ilm_stor_t_scms_acinf( ).
-      DATA(lt_bin)  = VALUE btc_t_xmlxtab( ).
-      CLEAR: lt_info, lt_bin.
-      CALL FUNCTION 'SCMS_DOC_READ'
-        EXPORTING
-          stor_cat    = space
-          crep_id     = <ls_connection>-contrep
-          doc_id      = <ls_connection>-bds_docid
-        TABLES
-          access_info = lt_info
-          content_bin = lt_bin
-        EXCEPTIONS
-          OTHERS      = 15.
-      CHECK sy-subrc = 0 AND lt_info[] IS NOT INITIAL AND lt_bin IS NOT INITIAL.
-
-      rv_photo = zcl_eui_conv=>binary_to_xstring( it_table  = lt_bin
-                                                  iv_length = lt_info[ 1 ]-comp_size ).
-      RETURN.
-    ENDLOOP.
   ENDMETHOD.
 
 
@@ -497,35 +485,6 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
 
       <ls_sheet>-days[] = VALUE tt_day( FOR lv_date = lv_beg_date THEN lv_date + 1 UNTIL lv_date > lv_end_date ( lv_date ) ).
     ENDLOOP.
-  ENDMETHOD.
-
-
-  METHOD _get_small_icon.
-    CHECK iv_photo IS NOT INITIAL.
-    DATA(o_ip) = NEW cl_fxs_image_processor( ).
-    DATA(lv_hndl) = o_ip->add_image( iv_data = iv_photo ).
-
-    o_ip->get_info( EXPORTING
-                      iv_handle   = lv_hndl
-                    IMPORTING
-*                      ev_mimetype = DATA(lv_mimetype)
-                      ev_xres     = DATA(lv_xres)
-                      ev_yres     = DATA(lv_yres)
-*                      ev_xdpi     = DATA(lv_xdpi)
-*                      ev_ydpi     = DATA(lv_ydpi)
-*                      ev_bitdepth = DATA(lv_bitdepth)
-                      ).
-
-    o_ip->resize(  iv_handle = lv_hndl
-                    iv_xres   = 64
-                    iv_yres   = 64 / lv_xres * lv_yres
-                    ).
-
-
-    o_ip->convert( iv_handle = lv_hndl
-                   iv_format = cl_fxs_mime_types=>co_image_jpeg ).
-
-    rv_icon = o_ip->get_image( lv_hndl ).
   ENDMETHOD.
 
 

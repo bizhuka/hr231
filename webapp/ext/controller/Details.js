@@ -64,6 +64,7 @@ sap.ui.define([
                     notes: _item.notes,
                     begda: "\/Date(" + _item.start.getTime() + ")\/",
                     endda: "\/Date(" + _item.end.getTime() + ")\/",
+                    eid: _item.type.substring(4, 6),
                     prev_begda: "\/Date(" + _item.prev_start.getTime() + ")\/",
                     prev_endda: "\/Date(" + _item.prev_end.getTime() + ")\/"
                 },
@@ -99,10 +100,10 @@ sap.ui.define([
                         text: "Delete",
                         press: function () {
                             this.oConfirmDialog.close()
-console.log(_item)
+
                             this.owner.getView().getModel().remove("/ZC_HR231_Emergency_Role(pernr='" + _item.pernr + "',begda=datetime'"
-                                + _item.prev_start.toISOString().split('T')[0] + "T00%3A00%3A00',endda=datetime'"
-                                + _item.prev_end.toISOString().split('T')[0] + "T00%3A00%3A00',eid='"
+                                + this.getDateIso(_item.prev_start) + "T00%3A00%3A00',endda=datetime'"
+                                + this.getDateIso(_item.prev_end) + "T00%3A00%3A00',eid='"
                                 + _item.type.substring(4, 6) + "')",
                                 {
                                     success: function (data) {
@@ -128,6 +129,12 @@ console.log(_item)
             }
 
             this.oConfirmDialog.open();
+        },
+
+        // TODO make lib
+        getDateIso: function (date) {
+            const okDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000))
+            return okDate.toISOString().split('T')[0]
         }
 
     });

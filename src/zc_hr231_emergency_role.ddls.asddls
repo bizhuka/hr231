@@ -4,7 +4,7 @@
 @AccessControl.authorizationCheck: #NOT_REQUIRED
 @EndUserText.label: 'Emergency roles of Personnel Number'
 @VDM.viewType: #CONSUMPTION
-//@Search.searchable
+@Search.searchable
 
 
 @ObjectModel: {
@@ -37,20 +37,19 @@
 
 @ZABAP.virtualEntity: 'ZCL_HR231_REPORT'
 
-define view ZC_HR231_Emergency_Role as select from pa9018 as _root                                                             
-  association [1..1] to ZC_HR231_OrgAssign      as _OrgAssign on _OrgAssign.pernr   = _root.pernr
-                                                             and _OrgAssign.endda  >= _root.begda  
-                                                             and _OrgAssign.begda  <= _root.endda
-                                                             and _OrgAssign.sprps   = ' '
+define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root                                                             
   association [0..1] to ZC_HR231_EmergeRoleText as _Text      on _Text.eid          = _root.emergrole_id
   
-  association [0..*] to ZC_HR231_Defaults       as _FakeConn  on _FakeConn.pernr    = _root.pernr  
-  //association [1..1] to pa0002                  as _PersInfo  on _PersInfo.    
+  association [0..1] to ZC_HR231_Defaults       as _Defaults  on _Defaults.pernr    = _root.pernr  
+  
+  // Fake connection SM30 tab
+  association [0..*] to ZC_HR231_DefaultsEdit   as _DefaultsEdit on _DefaultsEdit.pernr        = _root.pernr
+                                                                and _DefaultsEdit.emergrole_id = '77'
 {
-//     @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.7 }
+     @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.7 }
      @UI.lineItem: [{ position: 10, importance: #HIGH }]
      @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false }
-     //@Consumption.valueHelp: '_OrgAssign'
+     @Consumption.valueHelp: '_Defaults'
      key _root.pernr,
      
      
@@ -63,29 +62,30 @@ define view ZC_HR231_Emergency_Role as select from pa9018 as _root
 //     @UI.selectionField: [{ position: 20 }]
      @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false }
      key _root.endda,
-         
+          
          @UI.selectionField: [{ position: 30 }]
-         //@Consumption.valueHelp: '_Text'
+         @Consumption.valueHelp: '_Text'
          @ObjectModel.text.element: ['role_text']
          //@UI.lineItem: [{ position: 70, importance: #HIGH, label: 'Emergency role' }]
-         //@UI.textArrangement: #TEXT_ONLY  
      key _root.emergrole_id as eid,
          _Text.text as role_text,
          
-          @UI.lineItem: [{ position: 40, importance: #HIGH }]
-//          @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.8 }
-          _OrgAssign.ename,
-          @UI.lineItem: [{ position: 50, importance: #LOW }]
-          _OrgAssign.plans_txt,
-          
-//         @UI.lineItem: [{ position: 50, importance: #LOW }] @UI.fieldGroup: [{ qualifier: 'PersInfo', position: 20 }]
-//         _PersInfo.vorna as FirstName, _PersInfo.nachn as LastName,    
-         
-         @UI.selectionField: [{ position: 25 }]
-         @UI.lineItem: [{ position: 90, importance: #LOW, label: 'Group' }]
-//         @Consumption.valueHelp: '_Group'
+         @UI.lineItem: [{ position: 16, importance: #LOW, label: 'Group' }]   
+         @UI.selectionField: [{ position: 20 }]
+         @ObjectModel.text.element: ['grp_text']
+         @UI.textArrangement: #TEXT_ONLY 
+         @Consumption.valueHelp: '_Group'
+         _Text.grp_id,         
+         @UI.hidden: true
          _Text._Group.grp_text,
-         _Text.grp_id,
+
+         
+          @UI.lineItem: [{ position: 15, importance: #HIGH }]
+          @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.8 }
+          _Defaults.ename,
+          @UI.lineItem: [{ position: 60, importance: #LOW }]
+          _Defaults._OrgAssign._Position._Text.plstx as plans_txt,
+          
          _Text.letter,
          
 //         @UI.fieldGroup: [{ qualifier: 'Other' }]
@@ -94,19 +94,20 @@ define view ZC_HR231_Emergency_Role as select from pa9018 as _root
          _root.notes,
         
          @UI.hidden: true
-         _FakeConn.kz,
+         _Defaults.kz,
          @UI.hidden: true
-         _FakeConn.ru,
+         _Defaults.ru,
          @UI.hidden: true
-         _FakeConn.en,
+         _Defaults.en,
          
-         cast( ' ' as abap.char( 255 ) ) as photo_path,
+         //cast( ' ' as abap.char( 255 ) ) as photo_path,
+        concat( concat('../../../../../opu/odata/sap/ZC_PY000_ORGASSIGNMENT_CDS/ZC_PY000_PernrPhoto(pernr=''', _root.pernr),
+                       ''')/$value')  as photo_path,
          
     /* Associations */
-         //_Schedule,
-         _OrgAssign,
          _Text,
-         _Text._Group,
-         _FakeConn
+         _Text._Group as _Group,
+         _Defaults,
+         _DefaultsEdit
          
 } where  _root.sprps = ' '

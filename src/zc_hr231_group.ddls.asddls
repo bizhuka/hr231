@@ -6,7 +6,7 @@
 @VDM.viewType: #CONSUMPTION
 
 define view ZC_HR231_Group as select from dd07t as t {
-    @ObjectModel.text.element: [ 'Text' ]
+    @ObjectModel.text.element: [ 'grp_text' ]
     @UI.textArrangement: #TEXT_ONLY  
     @EndUserText.label: 'Group'
     @UI.lineItem: [{ position: 10 }] 

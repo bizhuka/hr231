@@ -72,17 +72,17 @@ sap.ui.controller("zhr231.ext.controller.ListReportExtension", {
   },
 
   onInitSmartFilterBarExtension: function (oEvent) {
-    const _this = this
     const _filterBar = oEvent.getSource()
 
     const filterData = _filterBar.getFilterData()
+    const now = new Date()
     filterData.begda = {
       "ranges": [{
         "exclude": false,
         "operation": "BT",
         "keyField": "begda",
-        "value1": new Date(new Date().getFullYear(), 0, 1),
-        "value2": new Date()
+        "value1": new Date(now.setMonth(now.getMonth() - 2)),
+        "value2": new Date(now.setMonth(now.getMonth() + 4))
       }]
     }
     _filterBar.setFilterData(filterData)

@@ -5,9 +5,6 @@ class ZCL_ZC_HR231_EMERGENCY_ROLE definition
   create public .
 
 public section.
-
-  methods DEFINE
-    redefinition .
 protected section.
 
   methods GET_PATHS
@@ -22,12 +19,6 @@ ENDCLASS.
 CLASS ZCL_ZC_HR231_EMERGENCY_ROLE IMPLEMENTATION.
 
 
-METHOD define.
-  super->define( ).
-  zcl_hr231_odata_model=>define_model( model ).
-ENDMETHOD.
-
-
   method GET_PATHS.
 et_paths = VALUE #(
 ( `CDS~ZC_HR231_EMERGENCY_ROLE` )
@@ -36,6 +27,6 @@ et_paths = VALUE #(
 
 
   method GET_TIMESTAMP.
-RV_TIMESTAMP = 20230219091442.
+RV_TIMESTAMP = 20230309060000.
   endmethod.
 ENDCLASS.

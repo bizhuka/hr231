@@ -11,15 +11,18 @@ define view ZC_HR231_EmergeRoleText as select from zdhr231_emergrol
 {
 
     @UI.lineItem: [{ position: 10, importance: #HIGH }]
-    @ObjectModel.text.element: ['text']
+    @ObjectModel.text.element: ['text'] 
+    @UI.textArrangement: #TEXT_ONLY      
     key emergrole_id as eid,
+    
         @UI.lineItem: [{ position: 20 }]
+        @Semantics.text: true
         emergrole    as text,
         
         letter,
         
+        @Consumption.valueHelp: '_Group'
         grp as grp_id,
-        _Group.grp_text,
         
         _Group
 }
