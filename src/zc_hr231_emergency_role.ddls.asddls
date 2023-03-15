@@ -101,7 +101,7 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
          _Defaults.en,
          
          //cast( ' ' as abap.char( 255 ) ) as photo_path,
-        concat( concat('../../../../../opu/odata/sap/ZC_PY000_ORGASSIGNMENT_CDS/ZC_PY000_PernrPhoto(pernr=''', _root.pernr),
+        concat( concat('../../../../../opu/odata/sap/ZC_PY000_REPORT_CDS/ZC_PY000_PernrPhoto(pernr=''', _root.pernr),
                        ''')/$value')  as photo_path,
          
     /* Associations */

@@ -124,7 +124,7 @@ sap.ui.controller("zhr231.ext.controller.ObjectPageExtension", {
 			const line = team[objPerson.pernr] || {
 				personID: objPerson.pernr,
 				// __metadata.media_src  objPerson.photo_path +
-				pic: document.location.origin + "/sap/opu/odata/sap/ZC_PY000_ORGASSIGNMENT_CDS/ZC_PY000_PernrPhoto(pernr='" + objPerson.pernr +
+				pic: document.location.origin + "/sap/opu/odata/sap/ZC_PY000_REPORT_CDS/ZC_PY000_PernrPhoto(pernr='" + objPerson.pernr +
 						 "')/$value?sap-client=300&$filter=" + encodeURIComponent('img_size eq 64'),
 				name: objPerson.ename,
 				role: objPerson.plans_txt,
