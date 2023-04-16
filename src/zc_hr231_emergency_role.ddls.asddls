@@ -11,7 +11,7 @@
     transactionalProcessingEnabled: true,
 //    writeActivePersistence: 'PA9018',
 //    compositionRoot: true,
-    createEnabled: true,
+//    createEnabled: true,
 //    updateEnabled: true,
 //    deleteEnabled: true,
     
@@ -50,23 +50,28 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
      @UI.lineItem: [{ position: 10, importance: #HIGH }]
      @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false }
      @Consumption.valueHelp: '_Defaults'
+     @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 10 }]     
      key _root.pernr,
      
      
      @UI.lineItem: [{ position: 20, importance: #HIGH }]
      @UI.selectionField: [{ position: 10 }]
-     @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false }
+     @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false, mandatory: true }
+     @EndUserText.label: 'Period'
+     @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 20 }]     
      key _root.begda,
      
      @UI.lineItem: [{ position: 30, importance: #HIGH }]
 //     @UI.selectionField: [{ position: 20 }]
      @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false }
+     @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 22 }]     
      key _root.endda,
           
          @UI.selectionField: [{ position: 30 }]
          @Consumption.valueHelp: '_Text'
          @ObjectModel.text.element: ['role_text']
          //@UI.lineItem: [{ position: 70, importance: #HIGH, label: 'Emergency role' }]
+         @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 40 }]         
      key _root.emergrole_id as eid,
          _Text.text as role_text,
          
@@ -74,7 +79,7 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
          @UI.selectionField: [{ position: 20 }]
          @ObjectModel.text.element: ['grp_text']
          @UI.textArrangement: #TEXT_ONLY 
-         @Consumption.valueHelp: '_Group'
+         @Consumption.valueHelp: '_Group'         
          _Text.grp_id,         
          @UI.hidden: true
          _Text._Group.grp_text,
@@ -82,15 +87,18 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
          
           @UI.lineItem: [{ position: 15, importance: #HIGH }]
           @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.8 }
+          @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 15 }]          
           _Defaults.ename,
           @UI.lineItem: [{ position: 60, importance: #LOW }]
           _Defaults._OrgAssign._Position._Text.plstx as plans_txt,
           
          _Text.letter,
+         _Text.color,
          
 //         @UI.fieldGroup: [{ qualifier: 'Other' }]
          @UI: {lineItem: [{ position: 100, importance: #LOW } ] }
          @UI.multiLineText: true
+         @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 40 }]
          _root.notes,
         
          @UI.hidden: true

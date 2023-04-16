@@ -8,12 +8,12 @@
         </endButton>
         <f:SimpleForm editable="false" layout="ResponsiveGridLayout" singleContainerFullSize="false">
 
-            <Label text="Employee Name" labelFor="moreInfo" />
-            <Text text="{item>/ename}" />
-
             <Label text="Personnel Number" labelFor="moreInfo" />
             <Text text="{path : 'item>/pernr', type : 'sap.ui.model.odata.type.String', constraints : {isDigitSequence : true, maxLength : 8 }}" />
 
+            <Label text="Employee Name" labelFor="moreInfo" />
+            <Text text="{item>/ename}" />
+            
             <Label text="From" labelFor="startDate" />
             <Text text="{ path: 'item>/start', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd.MM.yyyy', UTC: true } }" />
 
@@ -21,7 +21,7 @@
             <Text text="{ path: 'item>/end', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd.MM.yyyy', UTC: true } }" />
 
             <Label text="Type" labelFor="appType" />
-            <Text text="{item>/title}" />
+            <Text text="{item>/role_text}" />
 
             <Label text="Notes" />
             <Text text="{item>/notes}" />

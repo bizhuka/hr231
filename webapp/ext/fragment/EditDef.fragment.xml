@@ -1,0 +1,55 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+		xmlns:l="sap.ui.layout"
+		xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+		xmlns:smartField="sap.ui.comp.smartfield">
+
+	<Dialog title="{def>/actionText} default option" afterOpen="_onAfterDialogOpen">
+		<beginButton>
+			<Button text="{def>/actionText}" type="Emphasized" press="handleActionButton"/>
+		</beginButton>
+		<endButton>
+			<Button text="Cancel" press="closeDialog"/>
+		</endButton>
+		<l:VerticalLayout
+				class="sapUiContentPadding"
+				width="100%">
+
+			<f:SimpleForm
+					editable="true"
+					layout="ResponsiveGridLayout"
+					singleContainerFullSize="false">
+
+				<Label text="Personnel Number" labelFor="idDefPernr"/>
+  			    <smartField:SmartField id="idDefPernr"
+									   textInEditModeSource="ValueList"
+									   value="{pernr}"
+									   mandatory="true"
+									   entitySet="ZC_HR231_Defaults"
+									   change="_onDialogPernrSelected"/> 
+
+				<Label text="Employee Name"/>
+				<Input value="{def>/ename}"
+					   editable="false"/>
+
+				<Label text="Emergency role type"/>
+				<ComboBox selectedKey="{def>/emergrole_id}"
+					items="{ path: '/ZC_HR231_EmergeRoleText',
+							 sorter: { path: 'eid' }
+						   }">
+					<core:Item key="{eid}" text="{text}" />
+				</ComboBox>
+
+				<Label text="Kazakh"/>
+				<CheckBox selected="{def>/kz}"/>
+
+				<Label text="Russian"/>
+				<CheckBox selected="{def>/ru}"/>
+
+				<Label text="English"/>
+				<CheckBox selected="{def>/en}"/>
+			</f:SimpleForm>
+		</l:VerticalLayout>
+	</Dialog>
+</core:FragmentDefinition>

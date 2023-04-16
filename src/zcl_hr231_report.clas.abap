@@ -265,6 +265,11 @@ CLASS ZCL_HR231_REPORT IMPLEMENTATION.
 
 
   METHOD _check_is_exists.
+    IF is_9018_io-begda > is_9018_io-endda.
+      rv_error = |End date precedes start date|.
+      RETURN.
+    ENDIF.
+
     TYPES p9018_tab TYPE STANDARD TABLE OF p9018 WITH DEFAULT KEY.
     DATA(lt_prev_tab) = CAST p9018_tab( zcl_hr_read=>infty_tab(
            iv_infty   = '9018'

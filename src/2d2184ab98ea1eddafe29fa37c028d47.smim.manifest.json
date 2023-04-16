@@ -133,7 +133,7 @@
                                                 }                 
                                               },
                                       
-                                              "sap.suite.ui.generic.template.ObjectPage.view.Details": {
+                                              "saP.suite.ui.generic.template.ObjectPage.view.Details": {
                                                 "BeforeFacet|ZC_HR231_Emergency_Role|GeneralInfo": {
                                                   "className": "sap.ui.core.Fragment",
                                                   "fragmentName": "zhr231.ext.fragment.TeamContainer",
@@ -174,18 +174,8 @@
                 "useDateRange": true
               }
             },
-                                          "dataLoadSettings": {  "loadDataOnAppLaunch": "always" },
-                                          "tableSettings": {
-                                            "createWithParameterDialog" : {
-                                              "fields" : {
-                                                  "pernr":{"path": "pernr"},
-                                                  "begda":{"path": "begda"},
-                                                  "endda":{"path": "endda"},
-                                                  "notes":{"path": "notes"}
-                                              },
-                                                  "eid":{"path": "eid", "comment": "Use ZDHR231_EMR_DEF table"}
-                                            }
-                                            }
+                                          "dataLoadSettings": {  "loadDataOnAppLaunch": "always" }
+                                         
           }
         },
         "pages": {

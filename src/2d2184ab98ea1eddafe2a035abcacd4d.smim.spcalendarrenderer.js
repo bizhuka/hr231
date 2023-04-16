@@ -119,7 +119,7 @@ sap.ui.define([
 
 			oRm.openStart("div");
 			oRm.class("sapUiCalendarApp");
-			oRm.style("height", "3rem");
+			oRm.style("height", "2.8rem");
 			//oRm.class("sapUiCalendarAppHeight2");
 
 			if (oAppointment.getSelected()) {
@@ -152,13 +152,14 @@ sap.ui.define([
 			}
 
 			if (sIcon) {
-				aClasses = ["sapUiCalendarAppIcon"];
+				aClasses = ["sapUiCalendarAppIcon"]; // , "sapMSLIImg"
 				var mAttributes = {};
 
 				mAttributes["id"] = sId + "-Icon";
 				mAttributes["title"] = null;
 				mAttributes["role"] = "img";
-				oRm.icon(sIcon, aClasses, mAttributes);
+				mAttributes["style"] = "width: 2.7rem; height: 2.7rem;";
+				oRm.icon(sIcon, aClasses, mAttributes);				
 			}
 
 			oRm.openStart("div");

@@ -14,6 +14,7 @@ define view ZC_HR231_Defaults as select from zdhr231_emr_def as _main
                                                         and _OrgAssign.endda  >= _OrgAssign.datum
   
 {
+    // , type: #WITH_URL, url: 'pernr'
     @UI.lineItem: [{ position: 10, importance: #HIGH }]    
     @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.7 }
     @Consumption.valueHelp: '_OrgAssign'

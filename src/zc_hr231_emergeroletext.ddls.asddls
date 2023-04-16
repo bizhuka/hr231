@@ -21,6 +21,8 @@ define view ZC_HR231_EmergeRoleText as select from zdhr231_emergrol
         
         letter,
         
+        color,
+        
         @Consumption.valueHelp: '_Group'
         grp as grp_id,
         

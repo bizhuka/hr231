@@ -2,11 +2,12 @@
 		xmlns="sap.m"
 		xmlns:l="sap.ui.layout"
 		xmlns:f="sap.ui.layout.form"
-		xmlns:core="sap.ui.core">
+		xmlns:core="sap.ui.core"
+		xmlns:smartField="sap.ui.comp.smartfield">
 
-	<Dialog id="modifyDialog" title="Edit emergency data">
+	<Dialog title="{item>/actionText} emergency data" afterOpen="_onAfterDialogOpen">
 		<beginButton>
-			<Button text="Change" type="Emphasized" press="handleEditChangeButton"/>
+			<Button text="{item>/actionText}" type="Emphasized" press="handleActionButton"/>
 		</beginButton>
 		<endButton>
 			<Button text="Cancel" press="handleEditCancelButton"/>
@@ -20,28 +21,34 @@
 					layout="ResponsiveGridLayout"
 					singleContainerFullSize="false">
 
-				<Label text="Employee Name" labelFor="appTitle"/>
-				<Input value="{item>/ename}" editable="false"/>
+				<Label text="Personnel Number" labelFor="pernr"/>
+  			    <smartField:SmartField id="idEdtPernr"
+									   textInEditModeSource="ValueList"
+									   value="{pernr}"
+									   entitySet="ZC_HR231_Emergency_Role"
+									   change="_onDialogPernrSelected"/>
 
-				<Label text="Personnel Number" labelFor="inputInfo"/>
-				<Input value="{path : 'item>/pernr', type : 'sap.ui.model.odata.type.String', constraints : {isDigitSequence : true, maxLength : 8 }}" editable="false"/>
+				<Label text="Employee Name" labelFor="idEname"/>
+				<Input id="idEname"
+						value="{item>/ename}"
+						editable="false"/>
 
 				<Label text="From" labelFor="startDate"/>
 				<DatePicker
-						id="startDate"
+						id="idEdtStartDate"
 						value="{ path: 'item>/start', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd.MM.yyyy', UTC: true } }"
 						required="true"
 						change="handleDatePickerChange"/>
 
 				<Label text="To" labelFor="endDate"/>
 				<DatePicker
-				        id="endDate"
+				        id="idEdtEndDate"
 						value="{ path: 'item>/end', type: 'sap.ui.model.type.Date', formatOptions: { pattern: 'dd.MM.yyyy', UTC: true } }"
 						required="true"						
 						change="handleDatePickerChange"/>
 
 				<Label text="Type" labelFor="inType"/>
-				<Input id="inType" value="{item>/title}" editable="false"/>
+				<Input id="inType" value="{item>/role_text}" editable="false"/>
 
 				<Label text="Notes" />
 				<TextArea value="{item>/notes}" />

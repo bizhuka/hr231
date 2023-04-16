@@ -41,7 +41,7 @@
                                 <Collection>
                                     <Record Type="UI.ReferenceFacet">
                                         <PropertyValue Property="Label" String="Org. info" />
-                                        <PropertyValue Property="Target" AnnotationPath="to_OrgAssign/@UI.FieldGroup#OrgInfo" />
+                                        <PropertyValue Property="Target" AnnotationPath="@UI.FieldGroup#GeneralInfo" />
                                     </Record>
                                 </Collection>
                             </PropertyValue>

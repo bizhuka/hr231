@@ -10,7 +10,38 @@ sap.ui.define([
         constructor: function (owner) {
             this.owner = owner
             this._model = new sap.ui.model.json.JSONModel()
+            this._model.setDefaultBindingMode(sap.ui.model.BindingMode.TwoWay);
             this._model.setData(this._item)
+        },
+
+        initItem: function (src, dialogCreateMode) {
+            this.dialogCreateMode = !!dialogCreateMode
+
+            for (let variableKey in this._item)
+                if (this._item.hasOwnProperty(variableKey))
+                    delete this._item[variableKey]
+
+            this._item.pernr = src.pernr
+            this._item.ename = src.ename
+            this._item.notes = src.notes
+            this._item.role_text = src.role_text
+            this._item.type = src.type
+            this._item.info = src.info
+            this._item.start = new Date(src.start.getTime())
+
+            if (!this.dialogCreateMode) {
+                this._item.end = new Date(src.end1.getTime())
+
+                // +1 day
+                this._item.start.setDate(this._item.start.getDate() + 1)
+                this._item.prev_start = new Date(this._item.start.getTime())
+                // +1 day
+                this._item.end.setDate(this._item.end.getDate() + 1)
+                this._item.prev_end = new Date(this._item.end.getTime())
+            }
+            this._item.actionText = this.dialogCreateMode ? "Create" : "Change"
+
+            this._model.updateBindings()
         },
 
         showPopup: function (oAppointment) {
@@ -20,28 +51,10 @@ sap.ui.define([
                 this._popup.setModel(this._model, 'item')
             }
 
-            const src = oAppointment.getBindingContext('calendar').getObject()
-            this._item.pernr = src.pernr
-            this._item.ename = src.ename
-            this._item.notes = src.notes
-            this._item.title = src.title
-            this._item.type = src.type
-            this._item.info = src.info
-            this._item.start = new Date(src.start.getTime())
-            this._item.end = new Date(src.end1.getTime())
-
-            // +1 day
-            this._item.start.setDate(this._item.start.getDate() + 1)
-            this._item.prev_start = new Date(this._item.start.getTime())
-            // +1 day
-            this._item.end.setDate(this._item.end.getDate() + 1)
-            this._item.prev_end = new Date(this._item.end.getTime())
-
-            this._model.updateBindings()
             this._popup.openBy(oAppointment);
         },
 
-        handleEditButton: function (oEvent) {
+        handleEditButton: function () {
             if (!this._dialog) {
                 this._dialog = sap.ui.xmlfragment("zhr231.ext.fragment.Dialog", this)
                 this.owner.getView().addDependent(this._dialog)
@@ -54,11 +67,15 @@ sap.ui.define([
             this._dialog.close()
         },
 
-        handleEditChangeButton: function () {
-            const _dialog = this._dialog
-            const _item = this._item
+        handleActionButton: function () {
+            if (this.dialogCreateMode) {
+                this.handleCreate()
+                return
+            }
+            const _this = this
+            const _item = _this._item
 
-            this.owner.getView().getModel().create("/ZC_HR231_Emergency_Role",
+            _this.owner.getView().getModel().create("/ZC_HR231_Emergency_Role",
                 {
                     pernr: _item.pernr,
                     notes: _item.notes,
@@ -70,7 +87,7 @@ sap.ui.define([
                 },
                 {
                     success: function (data) {
-                        window._objectPage.update_1_appointment("updated",
+                        _this.owner.update_1_appointment("updated",
                             {
                                 pernr: _item.pernr,
                                 begda: _item.prev_start,
@@ -82,14 +99,33 @@ sap.ui.define([
                                 endda: data.endda,
                                 notes: data.notes
                             })
-                        _dialog.close()
+                        _this._dialog.close()
                     }
                 })
+        },
 
+        handleCreate: function () {
+            const _this = this
+            const _item = _this._item
+
+            _this.owner.getView().getModel().create("/ZC_HR231_Emergency_Role",
+                {
+                    pernr: _item.pernr,
+                    notes: _item.notes,
+                    begda: "\/Date(" + _item.start.getTime() + ")\/",
+                    endda: "\/Date(" + _item.end.getTime() + ")\/"
+                },
+                {
+                    success: function (data) {
+                        _this.owner.refreshCalendar(`Emergency role for ${_item.pernr} created`, true)
+                        _this._dialog.close()
+                    }
+                })
         },
 
         handlePopoverDeleteButton: function () {
-            const _item = this._item
+            const _this = this
+            const _item = _this._item
             if (!this.oConfirmDialog) {
                 this.oConfirmDialog = new sap.m.Dialog({
                     type: sap.m.DialogType.Message,
@@ -107,7 +143,7 @@ sap.ui.define([
                                 + _item.type.substring(4, 6) + "')",
                                 {
                                     success: function (data) {
-                                        window._objectPage.update_1_appointment("deleted",
+                                        _this.owner.update_1_appointment("deleted",
                                             {
                                                 pernr: _item.pernr,
                                                 begda: _item.prev_start,
@@ -115,8 +151,6 @@ sap.ui.define([
                                             })
                                     }
                                 })
-
-
                         }.bind(this)
                     }),
                     endButton: new sap.m.Button({
@@ -135,8 +169,32 @@ sap.ui.define([
         getDateIso: function (date) {
             const okDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000))
             return okDate.toISOString().split('T')[0]
-        }
+        },
 
+        _onAfterDialogOpen: function () {
+            const nPernr = this._item.pernr ? this._item.pernr.replace(/^0+/, '') : ''
+            sap.ui.getCore().byId("idEdtPernr").setValue(nPernr)
+            sap.ui.getCore().byId("idEdtPernr-input").setEditable(this.dialogCreateMode)
+        },
+
+        _onDialogPernrSelected: function (oEvent) {
+            this._item.pernr = oEvent.mParameters.newValue
+            sap.ui.getCore().byId("idEdtPernr").setValue(this._item.pernr.replace(/^0+/, ''))
+            sap.ui.getCore().byId("idEname").setValue('')
+            sap.ui.getCore().byId("inType").setValue('')
+
+            this.owner.getOwnerComponent().getModel().read("/ZC_HR231_Defaults", { // ZC_HR231_OrgAssign
+                filters: [new sap.ui.model.Filter("pernr", sap.ui.model.FilterOperator.EQ, this._item.pernr)],
+                urlParameters: {
+                    "$select": "ename,emergrole_text"
+                },
+
+                success: function (data) {
+                    sap.ui.getCore().byId("idEname").setValue(data.results[0].ename)
+                    sap.ui.getCore().byId("inType").setValue(data.results[0].emergrole_text)
+                }
+            })
+        }
     });
 }
 );

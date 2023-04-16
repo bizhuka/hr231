@@ -5,9 +5,10 @@ CLASS zcl_hr231_defaults_edit_filter DEFINITION
 
   PUBLIC SECTION.
 
-    INTERFACES zif_sadl_exit .
-    INTERFACES zif_sadl_prepare_read_runtime .
-    INTERFACES zif_sadl_prepare_batch .
+    INTERFACES: zif_sadl_exit,
+      zif_sadl_read_runtime,
+      zif_sadl_prepare_read_runtime,
+      zif_sadl_prepare_batch.
   PROTECTED SECTION.
   PRIVATE SECTION.
 ENDCLASS.
@@ -39,5 +40,23 @@ CLASS ZCL_HR231_DEFAULTS_EDIT_FILTER IMPLEMENTATION.
   METHOD zif_sadl_prepare_read_runtime~change_condition.
     CHECK iv_where CS |^TO_DEFAULTSEDIT|.
     CLEAR ct_sadl_condition[].
+  ENDMETHOD.
+
+
+  METHOD zif_sadl_read_runtime~execute.
+    TYPES: BEGIN OF ts_key,
+             pernr TYPE string,
+           END OF ts_key.
+    FIELD-SYMBOLS <ls_key> TYPE ts_key.
+
+    ASSIGN ir_key->* TO <ls_key> CASTING.
+    CHECK sy-subrc = 0 AND <ls_key>-pernr = '99999999'.
+
+    CHECK NEW zcl_hr231_report( )->check_authorization( ) IS INITIAL.
+
+    " Can edit
+    APPEND INITIAL LINE TO ct_data_rows[] ASSIGNING FIELD-SYMBOL(<ls_row>).
+    MOVE-CORRESPONDING <ls_key> TO <ls_row>.
+    cv_number_all_hits = lines( ct_data_rows[] ).
   ENDMETHOD.
 ENDCLASS.
