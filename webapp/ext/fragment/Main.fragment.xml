@@ -79,7 +79,7 @@
 						</m:toolbarContent>
 						<m:views>						    
 							<m:PlanningCalendarView key="Week" intervalType="Week" description="Week" intervalsS="1" intervalsM="2" intervalsL="7"/>
-							<!-- <m:PlanningCalendarView key="OneMonth" intervalType="OneMonth" description="Month" /> -->
+							<m:PlanningCalendarView key="OneMonth" intervalType="OneMonth" description="Month" intervalsL="31"  />
 						</m:views>
 						<m:rows>
 							<m:PlanningCalendarRow icon="{calendar>pic}"

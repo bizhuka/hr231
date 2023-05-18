@@ -1,0 +1,53 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:unified="sap.ui.unified"
+	xmlns:core="sap.ui.core"
+	xmlns:zz="zhr231.ext.controller">
+	<VBox>
+		<zz:SPCalendar
+			id="SinglePlanningCalendar"
+		    startDateChange=".startDateChangeHandler"
+			viewChange=".viewChangeHandler"
+			appointments="{calendar>appointments}"
+			startDate="{calendar>/startDate}"
+			appointmentSelect=".handleAppointmentSelect"
+			title="{calendar>/singleTitle}"
+			firstDayOfWeek="1">
+			<zz:actions>
+                <Select id="SinglePlanningCalendarTeamSelector" change=".selectChangeHandler"  items="{ path: 'calendar>/selector' }">
+                    <core:Item key="{calendar>index}" text="{calendar>text}" />
+                </Select>
+				<!-- <Button
+					text="Create"
+					press=".appointmentCreate"
+					tooltip="Create new appointment"/> -->
+				<Button
+					icon="sap-icon://legend"
+					press=".openLegend"
+					tooltip="Open Single Planning Calendar legend"
+					ariaHasPopup="Dialog"/>
+			</zz:actions>
+			<zz:views>
+				<!-- Month only 
+					<SinglePlanningCalendarWeekView
+					key="Week"
+					title="Week"/> -->
+				<SinglePlanningCalendarMonthView
+					key="OneMonth"
+					title="Month"/>
+
+			</zz:views>
+			<zz:appointments>
+				<unified:CalendarAppointment
+					startDate="{calendar>start}"
+					endDate="{calendar>end1}"
+					title="{calendar>title}"					
+					text="{calendar>info}"
+					tooltip="{calendar>info}"
+					type="{calendar>type}">
+					<!-- icon="{calendar>icon}" -->
+				</unified:CalendarAppointment>
+			</zz:appointments>
+		</zz:SPCalendar>
+	</VBox>
+</core:FragmentDefinition>
