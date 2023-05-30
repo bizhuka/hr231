@@ -47,16 +47,14 @@ CLASS ZCL_HR231_DEFAULTS_EDIT_FILTER IMPLEMENTATION.
     TYPES: BEGIN OF ts_key,
              pernr TYPE string,
            END OF ts_key.
-    FIELD-SYMBOLS <ls_key> TYPE ts_key.
-
-    ASSIGN ir_key->* TO <ls_key> CASTING.
-    CHECK sy-subrc = 0 AND <ls_key>-pernr = '99999999'.
+    DATA(ls_key) = CORRESPONDING ts_key( is_filter ).
+    CHECK ls_key-pernr = '99999999'.
 
     CHECK NEW zcl_hr231_report( )->check_authorization( ) IS INITIAL.
 
     " Can edit
     APPEND INITIAL LINE TO ct_data_rows[] ASSIGNING FIELD-SYMBOL(<ls_row>).
-    MOVE-CORRESPONDING <ls_key> TO <ls_row>.
+    MOVE-CORRESPONDING ls_key TO <ls_row>.
     cv_number_all_hits = lines( ct_data_rows[] ).
   ENDMETHOD.
 ENDCLASS.
