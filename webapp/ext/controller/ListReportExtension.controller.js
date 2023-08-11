@@ -1,410 +1,390 @@
-sap.ui.controller("zhr231.ext.controller.ListReportExtension", {
+// sap.ui.controller("zhr231.ext.controller.ListReportExtension", {});
 
-  _prefix: 'zhr231::sap.suite.ui.generic.template.ListReport.view.ListReport::ZC_HR231_Emergency_Role--',
+sap.ui.define([
+  "zhr231/ext/controller/Libs",
+  "zhr231/ext/controller/Schedule",
+  "zhr231/ext/controller/ReportButtons",
+  "zhr231/ext/controller/MessageParser",
+  "zhr231/ext/controller/Details",
+  "zhr231/ext/controller/EditDef",
+], function (Libs, Schedule, ReportButtons, MessageParser, Details, EditDef) {
+  "use strict";
 
-  _data: {
-    singleTitle: '',
-    startDate: new Date(),
-    //viewKey: "OneMonth",
-    supportedAppointmentItems: [],
-    persons: [],
-    list: []
-  },
+  return {
+    _prefix: 'zhr231::sap.suite.ui.generic.template.ListReport.view.ListReport::ZC_HR231_Emergency_Role--',
 
-  onInit: function () {
-    const listReportFilter = this.getView().byId(this._prefix + 'listReportFilter')
-    listReportFilter.setLiveMode(true)
-    listReportFilter.setShowClearOnFB(true)
+    _calendar_data: {
+      generalTitle: '',
+      // startDate: null,
+      supportedAppointmentItems: [],
+      persons: [],
+      list: [],
+      canCreate: false,
+      canUpdDefaults: false,
+    },
 
-    this._oModel = new sap.ui.model.json.JSONModel()
-    this._oModel.setData(this._data)
-    this.getView().setModel(this._oModel, "calendar")
-    this._setMessageParser()
-    this._loadRoleText()
+    onInit: function () {
+      sap.ui.core.BusyIndicator.show(0)
 
-    const parLevel = this.getView().byId(this._prefix + 'page')
-    const smartTable = parLevel.getContent()
-    sap.ui.core.Fragment.load({ id: this.getView().getId(), name: "zhr231.ext.fragment.Main", controller: this })
-      .then(function (oMainObjectPageLayout) {
-        parLevel.setContent(oMainObjectPageLayout)
+      const listReportFilter = this.getView().byId(this._prefix + 'listReportFilter')
+      listReportFilter.setLiveMode(true)
+      listReportFilter.setShowClearOnFB(true)
 
-        // Insert to new place          
-        this.getView().byId('idSmartTableParent').addBlock(smartTable)
+      this._oModel = new sap.ui.model.json.JSONModel()
+      // this._calendar_data.startDate = Libs.getMonday(new Date())
+      this._oModel.setData(this._calendar_data)
+      this.getView().setModel(this._oModel, "calendar")
+      this._setMessageParser()
+      this._loadRoleText()
 
-        this.getView().byId(this._prefix + 'SinglePlanningCalendar-Header-NavToolbar-TodayBtn').firePress()
+      const parLevel = this.getView().byId(this._prefix + 'page')
+      const smartTable = parLevel.getContent()
+      sap.ui.core.Fragment.load({ id: this.getView().getId(), name: "zhr231.ext.fragment.Main", controller: this })
+        .then(function (oMainObjectPageLayout) {
+          parLevel.setContent(oMainObjectPageLayout)
 
-        const _this = this
-        this.getView().byId(this._prefix + 'listReportFilter').attachAssignedFiltersChanged(function () {
-          _this._updateCalendarItems()
-        })
+          // Insert to new place          
+          this.getView().byId('idSmartTableParent').addBlock(smartTable)
 
-        this._checkAuthorization()
+          // this.getView().byId(this._prefix + 'idGeneralCalendar-Header-NavToolbar-TodayBtn').firePress()
+          const generalCalendar = this.getView().byId('idGeneralCalendar')
+          generalCalendar.setSelectedView(generalCalendar.getViews()[1]) // Month
+
+          this.getView().byId(this._prefix + 'listReportFilter').attachAssignedFiltersChanged(function () {
+            this._updateCalendarItems()
+          }.bind(this))
+
+          this._checkAuthorization()
+          sap.ui.core.BusyIndicator.hide()
+        }.bind(this))
+
+      // Hide variant selection
+      this.getView().byId(this._prefix + 'template:::ListReportPage:::DynamicPageTitle').setVisible(false)
+
+      window._listReport = this
+      this.getView().byId('responsiveTable').attachItemPress(function (oEvent) {
+        const obj = oEvent.getParameters().listItem.getBindingContext().getObject()
+        Schedule.readCurrentSchedule(obj.pernr, null, Libs.createAppointment(obj))
       }.bind(this))
-  },
+    },
 
-  onAfterRendering: function () {
-    this._initReportMenu()
-  },
+    handleRowHeaderClick: function (oEvent) {
+      const row = oEvent.mParameters.row.getBindingContext('calendar').getObject()
+      if (row.appointments.length === 0)
+        return
 
-  startDateChangeHandler: function () {
-    this._updateCalendarItems()
-  },
-
-  _updateCalendarItems: function () {
-    const _this = this
-    const oFilterBar = _this.getView().byId(this._prefix + 'listReportFilter')
-    const arrfilters = oFilterBar.getFilters()
-
-    const startDate = new Date(this._data.startDate)
-    this._data.singleTitle = startDate.getFullYear() + " - " + startDate.toLocaleString('default', { month: 'long' })
-
-    // // if (this._data.viewKey === 'OneMonth') {
-    // const date_from = new Date(startDate.getFullYear(), startDate.getMonth(), 1)
-    // const date_to = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0)
-    // // } else { // Week
-    // //     const monday = this.getMonday(startDate)
-    // //     date_from = new Date(monday)
-    // //     monday.setDate(monday.getDate() + 6);
-    // //     date_to = monday
-    // // }
-    // //console.log(this.getDateIso(date_from), this.getDateIso(date_to)) // this._data.viewKey, 
-    // arrfilters.push(new sap.ui.model.Filter("begda", sap.ui.model.FilterOperator.LE, this.getDateIso(date_to)))
-    // arrfilters.push(new sap.ui.model.Filter("endda", sap.ui.model.FilterOperator.GE, this.getDateIso(date_from)))
-
-    this.getOwnerComponent().getModel().read("/ZC_HR231_Emergency_Role", {
-      filters: arrfilters,
-      urlParameters: {
-        "$select": "pernr,role_text,begda,endda,ename,plans_txt,grp_text,notes,eid,color,photo_path",
-        "search": oFilterBar.getBasicSearchValue()
-      },
-
-      success: function (data) {
-        _this.setCalendarItems(data.results)
+      const firstApp = row.appointments[0]
+      const urlKey = {
+        pernr: "*" + firstApp.pernr + "*",
+        begda: `datetime*${Libs.getDateIso(firstApp.start)}T00%3A00%3A00*`,
+        endda: `datetime*${Libs.getDateIso(firstApp.end1)}T00%3A00%3A00*`,
+        eid: "*" + firstApp.type.substr(4) + "*"
       }
-    })
-  },
 
-  setCalendarItems: function (items) {
-    const persons = {}
-    this._data.list = []
-    for (const objPerson of items) {
-      const line = persons[objPerson.pernr] || {
-        personID: objPerson.pernr,
-        // __metadata.media_src  objPerson.photo_path +
-        pic: document.location.origin + "/sap/opu/odata/sap/ZC_PY000_REPORT_CDS/ZC_PY000_PernrPhoto(pernr='" + objPerson.pernr +
-          "')/$value?sap-client=300&$filter=" + encodeURIComponent('img_size eq 64'),
-        ename: objPerson.ename,
-        plans_txt: objPerson.plans_txt,
-        appointments: []
-      }
-      const app = {
-        role_text: objPerson.role_text,
-        type: 'Type' + objPerson.eid,
+      window.location.href = `index.html#/ZC_HR231_Emergency_Role(${new URLSearchParams(urlKey).toString().replaceAll("*", "'").replaceAll('&', ',')})/`
+      Schedule.readCurrentSchedule(firstApp.pernr, null, firstApp)
+    },
 
-        pernr: objPerson.pernr,
-        ename: objPerson.ename,
-        pic: line.pic,
-        color: objPerson.color
-      }
-      this.setPeriod(app, objPerson)
+    handleMoreLinkPress: function (oEvent) {
+      const oDate = oEvent.getParameter("date")
+      const generalCalendar = this.getView().byId('idGeneralCalendar')
 
-      line.appointments.push(app)
-      this._data.list.push(app)
+      generalCalendar.setSelectedView(generalCalendar.getViews()[0]) // Week
 
-      persons[objPerson.pernr] = line
-    }
-    this._data.persons = Object.values(persons)
+      // this._oModel.setData({ startDate: oDate }, true)
+      generalCalendar.setStartDate(oDate)
+    },
 
-    this.refreshCalendar()
-  },
+    onAfterRendering: function () {
+      ReportButtons.initAll(this)
+    },
 
-  setPeriod: function (item, src) {
-    item.notes = src.notes
-    item.start = this.getFixedDate(src.begda)
+    onBeforeRebindTableExtension: function (oEvent) {
+      const oBindingParams = oEvent.getParameter("bindingParams");
+      oBindingParams.parameters = oBindingParams.parameters || {};
 
-    const endda = this.getFixedDate(src.endda, true)
-    item.end1 = endda.low
-    item.end2 = endda.high
+      const oSmartTable = oEvent.getSource();
+      const oSmartFilterBar = this.byId(oSmartTable.getSmartFilterId())
 
-    item.tooltip = "From " + this.getTextDate(src.begda) + " to " + this.getTextDate(src.endda)
-    if (item.notes)
-      item.tooltip += (" - " + item.notes)
-  },
+      if (this._ChartTab) // && this._active_section === 'chartTab')
+        this._ChartTab.read_chart_data()
 
-  // TODO make lib
-  getDateIso: function (date) {
-    const okDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000))
-    return okDate.toISOString().split('T')[0]
-  },
+      ReportButtons.beforeFilter(oSmartFilterBar, oBindingParams)
+    },
 
-  getTextDate: function (d) {
-    return d.toLocaleDateString('ru-RU')
-  },
-
-  getFixedDate: function (date, pair) {
-    const low = new Date(date.getTime() + date.getTimezoneOffset() * 60000)
-    if (!pair)
-      return low
-
-    const high = new Date(low.getTime());
-    high.setDate(high.getDate() + 1)
-
-    return {
-      low: low,
-      high: high
-    }
-  },
-
-  getMonday: function (d) {
-    d = new Date(d);
-    var day = d.getDay(),
-      diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
-    return new Date(d.setDate(diff));
-  },
-
-  refreshCalendar: function (message, hard) {
-    if (hard)
+    startDateChangeHandler: function () {
       this._updateCalendarItems()
-    else
-      //this._oModel.setData(this._data)
-      this._oModel.updateBindings()
+    },
 
-    // TODO  Check
-    const oTable = this.getView().byId(this._prefix + 'responsiveTable')
-    //if (oTable && oTable.getParent())
-    oTable.getParent().rebindTable()
+    onSectionChange: function (oEvent) {
+      this._active_section = oEvent.getParameter('section').getId().replace(this._prefix, '')
 
-    if (message)
-      sap.m.MessageToast.show(message, {
-        duration: 3500
-      })
-  },
+      if (this._active_section === 'idGeneralSection' || this._active_section === 'idPersonalSection')
+        this._updateCalendarItems()
 
 
-  // Opend a legend
-  openLegend: function (oEvent) {
-    var _this = this,
-      oSource = oEvent.getSource(),
-      oView = _this.getView();
-    if (!this._pLegendPopover) {
-      this._pLegendPopover = sap.ui.core.Fragment.load({
-        id: oView.getId(),
-        name: "zhr231.ext.fragment.Legend",
-        controller: this
-      }).then(function (oLegendPopover) {
-        oLegendPopover.setModel(_this._oModel, "calendar")
-        oView.addDependent(oLegendPopover);
-        return oLegendPopover;
-      });
-    }
-    this._pLegendPopover.then(function (oLegendPopover) {
-      if (oLegendPopover.isOpen()) {
-        oLegendPopover.close();
-      } else {
-        oLegendPopover.openBy(oSource);
+      if (this._active_section === 'chartTab') {
+        sap.ui.core.BusyIndicator.show(0)
+        sap.ui.require(["zhr231/ext/controller/ChartTab"], function (ChartTab) {
+          sap.ui.core.BusyIndicator.hide()
+          if (!this._ChartTab)
+            this._ChartTab = new ChartTab(this)
+        }.bind(this));
       }
-    });
-  },
+    },
 
-  handleAppointmentSelect: function (oEvent) {
-    const oAppointment = oEvent.getParameter("appointment")
-    if (!oAppointment)
-      return
+    _get_period: function () {
+      if (this._active_section === 'idGeneralSection') {
+        const startDate = this.getView().byId('idGeneralCalendar').getStartDate()
+        this._calendar_data.generalTitle = startDate.getFullYear() + " - " + startDate.toLocaleString('default', { month: 'long' })
+        return {
+          date_from: Libs.addDays(startDate, -6),
+          date_to: Libs.addDays(startDate, 31 + 13)
+        }
+      }
 
-    const _this = this
-    sap.ui.require(["zhr231/ext/controller/Details"], function (Details) {
-      if (!_this.details)
-        _this.details = new Details(_this)
+      const calendar = this.getView().byId('idPersonalCalendar')
+      const startDate = calendar.getStartDate()
+      return {
+        date_from: Libs.addDays(startDate, 0),
+        date_to: Libs.addDays(startDate, calendar.getViewKey() === 'OneMonth' ? 30 : 6)
+      }
+    },
 
-      _this.details.initItem(oAppointment.getBindingContext('calendar').getObject())
-      _this.details.showPopup(oAppointment)
-    })
-  },
+    _updateCalendarItems: function () {
+      const _this = this
+      const oFilterBar = _this.getView().byId(this._prefix + 'listReportFilter')
+      const arrfilters = oFilterBar.getFilters()
 
-  appointmentCreate: function () {
-    const _this = this
-    sap.ui.require(["zhr231/ext/controller/Details"], function (Details) {
-      if (!_this.details)
-        _this.details = new Details(_this)
+      const period = this._get_period()
+      arrfilters.push(new sap.ui.model.Filter("begda", sap.ui.model.FilterOperator.LE, Libs.getDateIso(period.date_to)))
+      arrfilters.push(new sap.ui.model.Filter("endda", sap.ui.model.FilterOperator.GE, Libs.getDateIso(period.date_from)))
 
-      _this.details.initItem({ start: new Date() }, true)
-      _this.details.handleEditButton()
-    })
-  },
+      this.getOwnerComponent().getModel().read("/ZC_HR231_Emergency_Role", {
+        filters: arrfilters,
+        urlParameters: {
+          "$select": "pernr,role_text,begda,endda,ename,plans_txt,grp_text,notes,eid,color,photo_path",
+          "search": oFilterBar.getBasicSearchValue()
+        },
 
-  update_1_appointment: function (message, delApp, insApp) {
-    const row = this._data.persons.filter(item => item.personID === delApp.pernr)
-    if (!row[0]) return
+        success: function (data) {
+          _this.setCalendarItems(data.results)
+        }
+      })
+    },
 
-    const delArr = row[0].appointments.filter(app =>
-      this.getTextDate(app.start) === this.getTextDate(this.getFixedDate(delApp.begda))
-      && this.getTextDate(app.end1) === this.getTextDate(this.getFixedDate(delApp.endda)))
-    if (!delArr[0]) return
-    const delItem = delArr[0]
+    setCalendarItems: function (items) {
+      const persons = {}
+      this._calendar_data.list = []
+      for (const objPerson of items) {
+        const line = persons[objPerson.pernr] || {
+          personID: objPerson.pernr,
+          pic: Libs.get_avatar_url(objPerson.pernr),
+          ename: objPerson.ename,
+          plans_txt: objPerson.plans_txt,
+          appointments: []
+        }
 
-    if (insApp)
-      this.setPeriod(delItem, insApp)
-    else {
-      row[0].appointments = row[0].appointments.filter(app => app !== delItem)
-      this._data.list = this._data.list.filter(item => item !== delItem)
-    }
+        const app = Libs.createAppointment(objPerson)
+        line.appointments.push(app)
+        this._calendar_data.list.push(app)
 
-    this.refreshCalendar(`Emergency role for ${delItem.pernr} ${message}`)
-  },
+        persons[objPerson.pernr] = line
+      }
+      this._calendar_data.persons = Object.values(persons)
 
-  _setMessageParser: function () {
-    const model = this.getOwnerComponent().getModel()
-    sap.ui.require(["zhr231/ext/controller/MessageParser"], function (MessageParser) {
+      this.refreshCalendar()
+    },
+
+    refreshCalendar: function (message, hard) {
+      if (hard)
+        this._updateCalendarItems()
+      else
+        //this._oModel.setData(this._calendar_data)
+        this._oModel.updateBindings()
+
+      // TODO  Check
+      const oTable = this.getView().byId(this._prefix + 'responsiveTable')
+      //if (oTable && oTable.getParent())
+      oTable.getParent().rebindTable()
+
+      if (message) {
+        Libs.showMessage(message)
+
+        if (this.scheduleObj && window._objectPage)
+          Schedule.readCurrentSchedule()
+      }
+    },
+
+
+    // Opend a legend
+    openLegend: function (oEvent) {
+      var _this = this,
+        oSource = oEvent.getSource(),
+        oView = _this.getView();
+      if (!this._pLegendPopover) {
+        this._pLegendPopover = sap.ui.core.Fragment.load({
+          id: oView.getId(),
+          name: "zhr231.ext.fragment.Legend",
+          controller: this
+        }).then(function (oLegendPopover) {
+          oLegendPopover.setModel(_this._oModel, "calendar")
+          oView.addDependent(oLegendPopover);
+          return oLegendPopover;
+        });
+      }
+      this._pLegendPopover.then(function (oLegendPopover) {
+        if (oLegendPopover.isOpen()) {
+          oLegendPopover.close();
+        } else {
+          oLegendPopover.openBy(oSource);
+        }
+      });
+    },
+
+    handleAppointmentSelect: function (oEvent, appObject) {
+      this.scheduleObj = appObject
+
+      const oAppointment = oEvent.getParameter("appointment")
+      if (!oAppointment)
+        return
+
+      if (!this.details)
+        this.details = new Details(this)
+
+      if (!appObject) appObject = oAppointment.getBindingContext('calendar').getObject()
+      this.details.initItem(appObject)
+
+      this.details.showPopup(oAppointment)
+    },
+
+    appointmentCreate: function () {
+      if (!this.details)
+        this.details = new Details(this)
+
+      this.details.initItem({ start: new Date() }, true)
+      this.details.handleEditButton()
+    },
+
+    update_1_appointment: function (message, delApp, insApp) {
+      const row = this._calendar_data.persons.filter(item => item.personID === delApp.pernr)
+      if (!row[0]) return
+
+      const delArr = row[0].appointments.filter(app =>
+        Libs.getTextDate(app.start) === Libs.getTextDate(Libs.getFixedDate(delApp.begda))
+        && Libs.getTextDate(app.end1) === Libs.getTextDate(Libs.getFixedDate(delApp.endda)))
+      if (!delArr[0]) return
+      const delItem = delArr[0]
+
+      if (insApp)
+        Libs.set_main_fields(delItem, insApp)
+      else {
+        row[0].appointments = row[0].appointments.filter(app => app !== delItem)
+        this._calendar_data.list = this._calendar_data.list.filter(item => item !== delItem)
+      }
+
+      this.refreshCalendar(`Emergency role for ${delItem.pernr} ${message}`)
+    },
+
+    _setMessageParser: function () {
+      const model = this.getOwnerComponent().getModel()
       const messageParser = new MessageParser(model.sServiceUrl, model.oMetadata, !!model.bPersistTechnicalMessages)
       model.setMessageParser(messageParser)
-    })
-  },
+    },
 
-  _loadRoleText: function () {
-    const _this = this
-    const supportedAppointmentItems = _this._data.supportedAppointmentItems
-    if (supportedAppointmentItems.length === 0)
-      this.getOwnerComponent().getModel().read("/ZC_HR231_EmergeRoleText", {
+    _loadRoleText: function () {
+      const _this = this
+      const supportedAppointmentItems = _this._calendar_data.supportedAppointmentItems
+      if (supportedAppointmentItems.length === 0)
+        this.getOwnerComponent().getModel().read("/ZC_HR231_EmergeRoleText", {
+          urlParameters: {
+            "$select": "eid,text,color",
+          },
+          success: function (data) {
+            for (const item of data.results)
+              supportedAppointmentItems.push({
+                type: 'Type' + item.eid,
+                text: item.text + ' (' + item.eid + ')',
+                color: item.color.toLowerCase()
+              })
+          }
+        })
+    },
+
+    _checkAuthorization: function () {
+      const _this = this
+      _this.getOwnerComponent().getModel().read(`/ZC_HR231_DefaultsEdit`, {
+        filters: [new sap.ui.model.Filter("pernr", sap.ui.model.FilterOperator.EQ, '99999999')],
+
         urlParameters: {
-          "$select": "eid,text,color",
+          "$select": "allowed_eids,upd_defaults"
         },
         success: function (data) {
-          for (const item of data.results)
-            supportedAppointmentItems.push({
-              type: 'Type' + item.eid,
-              text: item.text + ' (' + item.eid + ')',
-              color: item.color.toLowerCase()
-            })
-        }
+          if (data.results.length === 0)
+            return
+
+          this._calendar_data.canCreate = data.results[0].allowed_eids.length > 0
+          this._calendar_data.canUpdDefaults = data.results[0].upd_defaults === 'X'
+          this._oModel.updateBindings()
+        }.bind(this)
       })
-  },
+    },
 
-  _checkAuthorization: function () {
-    const _this = this
-    _this.getOwnerComponent().getModel().read(`/ZC_HR231_DefaultsEdit`, {
-      filters: [new sap.ui.model.Filter("pernr", sap.ui.model.FilterOperator.EQ, '99999999')],
+    onDefaultEditClick: function (oEvent) {
+      const action = oEvent !== 'CRE' ? oEvent.oSource.getTarget().substr(0, 3) : oEvent
+      const cPernrEid = oEvent !== 'CRE' ? oEvent.oSource.getTarget().substr(4) : false
 
-      success: function (data) {
-        if (data.results.length === 0)
-          return
+      if (action === 'DEL')
+        this._doDefaultDelete(cPernrEid)
+      else
+        this._doDefaultEdit(action === 'CRE', cPernrEid)
+    },
 
-        for (let i = 1; i <= 3; i++)
-          sap.ui.getCore().byId(`${_this._prefix}btCreate${i}`).setEnabled(true)
+    _doDefaultEdit: function (create, cPernrEid) {
+      if (!this.editDef)
+        this.editDef = new EditDef(this)
+
+      this.editDef.openDialog(create, cPernrEid)
+    },
+
+    defaultUpdated: function (message) {
+      if (message)
+        Libs.showMessage(message)
+      this.getView().byId(this._prefix + 'idDefaultList').rebindTable()
+    },
+
+    _doDefaultDelete: function (cPernrEid) {
+      const _this = this
+      const arrPair = cPernrEid.split('-')
+      if (!this._deleteDialog) {
+        this._deleteDialog = new sap.m.Dialog({
+          type: sap.m.DialogType.Message,
+          title: "Confirm",
+          content: new sap.m.Text({ text: `Are you sure to delete ${arrPair[0]} - ${arrPair[1]} option?` }),
+          beginButton: new sap.m.Button({
+            type: sap.m.ButtonType.Emphasized,
+            text: "Delete",
+            press: function () {
+              this._deleteDialog.close()
+
+              this.getView().getModel().remove(`/ZC_HR231_DefaultsEdit(pernr='${arrPair[0]}',emergrole_id='${arrPair[1]}')`,
+                {
+                  success: function () {
+                    _this.defaultUpdated(`The option for ${arrPair[0]} - ${arrPair[1]} successfully deleted`)
+                  }
+                })
+            }.bind(this)
+          }),
+          endButton: new sap.m.Button({
+            text: "Cancel",
+            press: function () {
+              this._deleteDialog.close()
+            }.bind(this)
+          })
+        });
       }
-    })
-  },
 
-  _initReportMenu: function () {
-    const _this = this
-    const _view = _this.getView()
-
-    const menuId = _this._prefix + 'report-xlsx'
-    if (_view.byId(menuId))
-      return
-
-    const params = {
-      id: menuId,
-      text: "Report",
-      icon: "sap-icon://excel-attachment",
-
-      press: function () {
-        const table = _view.byId(_this._prefix + 'responsiveTable')
-        const sFilter = table.getBinding("items").sFilterParams
-        if (!sFilter || sFilter.indexOf("begda") === -1) {
-          sap.m.MessageToast.show('Please specify filter with "Start date"', { duration: 3500 });
-          $(".sapMMessageToast").css("background", "#cc1919");
-          return
-        }
-        const sUrl =
-          document.location.origin +
-          "/sap/opu/odata/sap/ZC_HR231_EMERGENCY_ROLE_CDS/ZC_HR231_Emergency_Role(pernr='00000000',begda=datetime'2000-01-01T00%3A00%3A00',endda=datetime'2000-01-01T00%3A00%3A00',eid='00')/$value?" +
-          sFilter
-        window.open(sUrl)
-      }
+      this._deleteDialog.open();
     }
-
-    _view.byId(_this._prefix + 'template::ListReport::TableToolbar').addContent(new sap.m.Button(params))
-  },
-
-  onInitSmartFilterBarExtension: function (oEvent) {
-    const _filterBar = oEvent.getSource()
-
-    const filterData = _filterBar.getFilterData()
-    const now = new Date()
-    filterData.begda = {
-      "ranges": [{
-        "exclude": false,
-        "operation": "BT",
-        "keyField": "begda",
-        "value1": new Date(now.setMonth(now.getMonth() - 4)),
-        "value2": new Date(now.setMonth(now.getMonth() + 6))
-      }]
-    }
-    _filterBar.setFilterData(filterData)
-
-    // Hide variant selection
-    this.getView().byId(this._prefix + 'template:::ListReportPage:::DynamicPageTitle').setVisible(false)
-  },
-
-  onDefaultEditClick: function (oEvent) {
-    const action = oEvent !== 'CRE' ? oEvent.oSource.getTarget().substr(0, 3) : oEvent
-    const nPernr = oEvent !== 'CRE' ? oEvent.oSource.getTarget().substr(4) : false
-
-    if (action === 'DEL')
-      this._doDefaultDelete(nPernr)
-    else
-      this._doDefaultEdit(action === 'CRE', nPernr)
-  },
-
-  _doDefaultEdit: function (create, nPernr) {
-    const _this = this
-    sap.ui.require(["zhr231/ext/controller/EditDef"], function (EditDef) {
-      if (!_this.editDef)
-        _this.editDef = new EditDef(_this)
-
-      _this.editDef.openDialog(create, nPernr)
-    })
-  },
-
-  defaultUpdated: function (message) {
-    if (message)
-      sap.m.MessageToast.show(message, {
-        duration: 3500
-      })
-    this.getView().byId(this._prefix + 'idDefaultList').rebindTable()
-  },
-
-  _doDefaultDelete: function (nPernr) {
-    const _this = this
-    if (!this._deleteDialog) {
-      this._deleteDialog = new sap.m.Dialog({
-        type: sap.m.DialogType.Message,
-        title: "Confirm",
-        content: new sap.m.Text({ text: `Are you sure to delete ${nPernr} option?` }),
-        beginButton: new sap.m.Button({
-          type: sap.m.ButtonType.Emphasized,
-          text: "Delete",
-          press: function () {
-            this._deleteDialog.close()
-
-            this.getView().getModel().remove(`/ZC_HR231_DefaultsEdit('${nPernr}')`,
-              {
-                success: function () {
-                  _this.defaultUpdated(`The option for ${nPernr} successfully deleted`)
-                }
-              })
-          }.bind(this)
-        }),
-        endButton: new sap.m.Button({
-          text: "Cancel",
-          press: function () {
-            this._deleteDialog.close()
-          }.bind(this)
-        })
-      });
-    }
-
-    this._deleteDialog.open();
   }
-
-});
+})

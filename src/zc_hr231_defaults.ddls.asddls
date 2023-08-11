@@ -19,18 +19,17 @@ define view ZC_HR231_Defaults as select from zdhr231_emr_def as _main
     @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.7 }
     @Consumption.valueHelp: '_OrgAssign'
     key pernr,
-        
-    @UI.lineItem: [{ position: 15, importance: #HIGH }]
-    @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.8 }
-    _OrgAssign.ename,
     
     @UI.lineItem: [{ position: 100, importance: #LOW, exclude: true }]  
     @ObjectModel.text.element: ['emergrole_text']
     @Consumption.valueHelp: '_Text'
     @UI.textArrangement: #TEXT_ONLY
-    _main.emergrole_id,
+    key _main.emergrole_id,
+        
+    @UI.lineItem: [{ position: 15, importance: #HIGH }]
+    @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.8 }
+    _OrgAssign.ename,
     
-//    @UI.hidden: true
     @UI.lineItem: [{ position: 20, importance: #HIGH }]
     _Text.text as emergrole_text,
     
@@ -40,6 +39,11 @@ define view ZC_HR231_Defaults as select from zdhr231_emr_def as _main
     en,
     @UI.lineItem: [{ position: 50 }]
     ru,
+    
+//    @UI.hidden: true
+    @EndUserText.label: 'Pers.No.   Emg.Role'
+    
+    concat_with_space(pernr, emergrole_id, 3) as pernr_eid,
     
     /* Associations */
     _Text,

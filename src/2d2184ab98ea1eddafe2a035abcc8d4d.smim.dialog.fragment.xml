@@ -23,10 +23,11 @@
 
 				<Label text="Personnel Number" labelFor="pernr"/>
   			    <smartField:SmartField id="idEdtPernr"
-									   textInEditModeSource="ValueList"
 									   value="{pernr}"
 									   entitySet="ZC_HR231_Emergency_Role"
-									   change="_onDialogPernrSelected"/>
+									   change="_onPernrSelected"
+									   valueListChanged="_onOtherSelected"
+									   textInEditModeSource="None"/>
 
 				<Label text="Employee Name" labelFor="idEname"/>
 				<Input id="idEname"
@@ -48,7 +49,14 @@
 						change="handleDatePickerChange"/>
 
 				<Label text="Type" labelFor="inType"/>
-				<Input id="inType" value="{item>/role_text}" editable="false"/>
+				<!-- <Input id="inType" value="{item>/role_text}" editable="false"/> -->
+
+				<Select id="inType"
+						selectedKey="{item>/eid}"
+				        items="{/ZC_HR231_EmergeRoleText}"
+						editable="false">
+						<core:Item key="{eid}" text="{text}" />
+				</Select>
 
 				<Label text="Notes" />
 				<TextArea value="{item>/notes}" />

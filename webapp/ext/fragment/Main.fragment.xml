@@ -12,7 +12,8 @@
         id="ObjectPageLayout"
         enableLazyLoading="true"		
 		upperCaseAnchorBar="false"
-        useIconTabBar="true">
+        useIconTabBar="true"
+		sectionChange="onSectionChange">
 		<headerTitle>
 			<!-- <ObjectPageDynamicHeaderTitle> -->
 				<!-- <breadcrumbs>
@@ -55,29 +56,33 @@
 		</headerContent> -->
 
 		<sections>
-			<ObjectPageSection titleUppercase="false" title="Personal view">
+			<ObjectPageSection id="idPersonalSection">
+				<customAnchorBarButton>
+					<m:Button icon="sap-icon://employee"
+					          text="Personal view"/>
+				</customAnchorBarButton>
+
                 <ObjectPageSubSection>
 					<m:PlanningCalendar
-						id="PlanningCalendar"            						
+						id="idPersonalCalendar"
 						rows="{calendar>/persons}"
 						appointmentsVisualization="Filled"
 						showEmptyIntervalHeaders="false"
 						showWeekNumbers="true"
 						viewKey="Week"
 						startDateChange=".startDateChangeHandler"
-						viewChange=".viewChangeHandler"
-						startDate="{calendar>/startDate}"
+						viewChange=".viewChangeHandler"						
 						appointmentSelect=".handleAppointmentSelect"
+						rowHeaderClick="handleRowHeaderClick"
 						firstDayOfWeek="1"
 					>
 
 						<m:toolbarContent>
-							<m:Button text="Create" press=".appointmentCreate" tooltip="Create new item"
-							          id="btCreate2"
-								      enabled="false"/>
-							<m:Button id="PlanningCalendarLegendButton" icon="sap-icon://legend" press=".openLegend" tooltip="Open Planning Calendar legend" ariaHasPopup="Dialog" />
+							<m:Button text="Create" press=".appointmentCreate" tooltip="Create new item"							          
+								      enabled="{calendar>/canCreate}"/>
+							<m:Button icon="sap-icon://legend" press=".openLegend" tooltip="Open Planning Calendar legend" ariaHasPopup="Dialog" />
 						</m:toolbarContent>
-						<m:views>						    
+						<m:views>			    
 							<m:PlanningCalendarView key="Week" intervalType="Week" description="Week" intervalsS="1" intervalsM="2" intervalsL="7"/>
 							<m:PlanningCalendarView key="OneMonth" intervalType="OneMonth" description="Month" intervalsL="31"  />
 						</m:views>
@@ -103,10 +108,13 @@
                 </ObjectPageSubSection>
 			</ObjectPageSection>
 			<ObjectPageSection titleUppercase="false" id="personalSection">
-					<!-- <heading><m:MessageStrip text="Lorem Ipsum is simply dummy text of the printing and typesetting industry." type="Error" /></heading> -->
+						<customAnchorBarButton>
+							<m:Button icon="sap-icon://table-view"
+								      text="Table view"/>
+						</customAnchorBarButton>
 
 					<subSections>
-					<ObjectPageSubSection id="idSmartTableParent" title="Table view" titleUppercase="false">
+					<ObjectPageSubSection id="idSmartTableParent">
 						<!-- <blocks> -->
 
 						<!-- </blocks> -->
@@ -116,24 +124,28 @@
 				</subSections>
 			</ObjectPageSection>
 
-			<ObjectPageSection titleUppercase="false" title="General view">
+			<ObjectPageSection id="idGeneralSection">
+						<customAnchorBarButton>
+							<m:Button icon="sap-icon://appointment-2"
+								      text="General view"/>
+						</customAnchorBarButton>
+			
                 <ObjectPageSubSection>
 					<m:SinglePlanningCalendar
-						id="SinglePlanningCalendar"
+						id="idGeneralCalendar"
 						startDateChange=".startDateChangeHandler"
 						viewChange=".viewChangeHandler"
 						appointments="{calendar>/list}"
-						startDate="{calendar>/startDate}"
 						appointmentSelect=".handleAppointmentSelect"
-						title="{calendar>/singleTitle}"
-						firstDayOfWeek="1">
+						title="{calendar>/generalTitle}"
+						firstDayOfWeek="1"
+						moreLinkPress="handleMoreLinkPress">
 						<m:actions>
 							<m:Button
 								text="Create"
 								press=".appointmentCreate"
 								tooltip="Create new item"
-								id="btCreate1"
-								enabled="false"/>
+								enabled="{calendar>/canCreate}"/>
 							<m:Button
 								icon="sap-icon://legend"
 								press=".openLegend"
@@ -141,11 +153,10 @@
 								ariaHasPopup="Dialog"/>
 						</m:actions>
 						<m:views>
-							<!-- Month only 
-								<SinglePlanningCalendarWeekView
+							<m:SinglePlanningCalendarWeekView
 								key="Week"
-								title="Week"/> -->
-							<m:SinglePlanningCalendarMonthView
+								title="Week"/>
+							<m:SinglePlanningCalendarMonthView 
 								key="OneMonth"
 								title="Month"/>
 
@@ -166,8 +177,23 @@
                 </ObjectPageSubSection>
 			</ObjectPageSection>
 
-
-			<ObjectPageSection titleUppercase="false" title="Defaults">
+			<!-- Statistics -->
+			<ObjectPageSection id="chartTab"
+			                   titleUppercase="false" visible="{is_admin}">
+				<customAnchorBarButton>
+					<m:Button icon="sap-icon://business-objects-experience"
+					          text="Statistics"/>
+				</customAnchorBarButton>
+				<ObjectPageSubSection title="">
+					<m:VBox id="chartVBox"/>
+				</ObjectPageSubSection>
+			</ObjectPageSection>
+			
+			<ObjectPageSection titleUppercase="false" visible="{calendar>/canUpdDefaults}">
+				<customAnchorBarButton>
+					<m:Button icon="sap-icon://customize"
+					          text="Settings"/>
+				</customAnchorBarButton>
                 <ObjectPageSubSection>
 <m:VBox>
 					<smartFilterBar:SmartFilterBar id="idDefaultFilter" persistencyKey="searchListReportVariant"
@@ -188,6 +214,7 @@
 							entitySet="ZC_HR231_Defaults" 
 							header="Employee defaults" 
 							showRowCount="true"
+							requestAtLeastFields="emergrole_id"
 							tableType="ResponsiveTable"
 							enableAutoBinding="true"
 							useTablePersonalisation="false"					
@@ -201,9 +228,7 @@
 						<smartTable:customToolbar>
 							<m:OverflowToolbar design="Transparent">
 								<m:ToolbarSpacer/>
-								<m:Button text="Create"  press="onDefaultEditClick('CRE')"
-									      id="btCreate3"
-								          enabled="false"/>
+								<m:Button text="Create"  press="onDefaultEditClick('CRE')"/>
 							</m:OverflowToolbar>
 						</smartTable:customToolbar>
 
@@ -219,9 +244,9 @@
 							<m:items>
 								<m:ColumnListItem>
 									<m:HBox>
-										<m:Link text="Edit " target="EDT-{pernr}" press="onDefaultEditClick"></m:Link>
+										<m:Link text="Edit " target="EDT-{pernr}-{emergrole_id}" press="onDefaultEditClick"></m:Link>
 										<m:Text text=" - "/>
-										<m:Link text=" Delete" target="DEL-{pernr}" press="onDefaultEditClick"></m:Link>
+										<m:Link text=" Delete" target="DEL-{pernr}-{emergrole_id}" press="onDefaultEditClick"></m:Link>
 									</m:HBox>
 								</m:ColumnListItem>
 							</m:items>

@@ -1,9 +1,10 @@
 sap.ui.define([
-    'sap/ui/base/Object'
-], function (Object) {
+    "zhr231/ext/controller/Libs",
+    "sap/ui/base/Object"
+], function (Libs, SapObject) {
     "use strict";
 
-    return Object.extend("zhr231.ext.controller.Details", {
+    return SapObject.extend("zhr231.ext.controller.Details", {
         owner: null,
         _item: {},
 
@@ -25,7 +26,8 @@ sap.ui.define([
             this._item.ename = src.ename
             this._item.notes = src.notes
             this._item.role_text = src.role_text
-            this._item.type = src.type
+            this._item.eid = src.type ? src.type.substring(4, 6) : ""
+            this._item.prev_eid = this._item.eid
             this._item.info = src.info
             this._item.start = new Date(src.start.getTime())
 
@@ -68,6 +70,8 @@ sap.ui.define([
         },
 
         handleActionButton: function () {
+            this.set_pernr()
+
             if (this.dialogCreateMode) {
                 this.handleCreate()
                 return
@@ -80,13 +84,15 @@ sap.ui.define([
                     pernr: _item.pernr,
                     notes: _item.notes,
                     begda: "\/Date(" + _item.start.getTime() + ")\/",
-                    endda: "\/Date(" + _item.end.getTime() + ")\/",
-                    eid: _item.type.substring(4, 6),
+                    endda: "\/Date(" + _item.end.getTime() + ")\/",                    
+                    emergrole_id: _item.eid,
+
+                    eid: _item.prev_eid,
                     prev_begda: "\/Date(" + _item.prev_start.getTime() + ")\/",
                     prev_endda: "\/Date(" + _item.prev_end.getTime() + ")\/"
                 },
                 {
-                    success: function (data) {
+                    success: function (data) {                        
                         _this.owner.update_1_appointment("updated",
                             {
                                 pernr: _item.pernr,
@@ -95,9 +101,13 @@ sap.ui.define([
                             },
                             {
                                 pernr: _item.pernr,
+                                eid: _item.eid,
+                                role_text: sap.ui.getCore().byId("inType").getSelectedItem().getProperty('text'),
+                                color: data.color,
+
                                 begda: data.begda,
                                 endda: data.endda,
-                                notes: data.notes
+                                notes: data.notes,                                
                             })
                         _this._dialog.close()
                     }
@@ -111,6 +121,7 @@ sap.ui.define([
             _this.owner.getView().getModel().create("/ZC_HR231_Emergency_Role",
                 {
                     pernr: _item.pernr,
+                    emergrole_id: _item.eid,
                     notes: _item.notes,
                     begda: "\/Date(" + _item.start.getTime() + ")\/",
                     endda: "\/Date(" + _item.end.getTime() + ")\/"
@@ -138,9 +149,9 @@ sap.ui.define([
                             this.oConfirmDialog.close()
 
                             this.owner.getView().getModel().remove("/ZC_HR231_Emergency_Role(pernr='" + _item.pernr + "',begda=datetime'"
-                                + this.getDateIso(_item.prev_start) + "T00%3A00%3A00',endda=datetime'"
-                                + this.getDateIso(_item.prev_end) + "T00%3A00%3A00',eid='"
-                                + _item.type.substring(4, 6) + "')",
+                                + Libs.getDateIso(_item.prev_start) + "T00%3A00%3A00',endda=datetime'"
+                                + Libs.getDateIso(_item.prev_end) + "T00%3A00%3A00',eid='"
+                                + _item.eid + "')",
                                 {
                                     success: function (data) {
                                         _this.owner.update_1_appointment("deleted",
@@ -165,35 +176,34 @@ sap.ui.define([
             this.oConfirmDialog.open();
         },
 
-        // TODO make lib
-        getDateIso: function (date) {
-            const okDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60 * 1000))
-            return okDate.toISOString().split('T')[0]
-        },
-
         _onAfterDialogOpen: function () {
-            const nPernr = this._item.pernr ? this._item.pernr.replace(/^0+/, '') : ''
-            sap.ui.getCore().byId("idEdtPernr").setValue(nPernr)
-            sap.ui.getCore().byId("idEdtPernr-input").setEditable(this.dialogCreateMode)
+            this.set_pernr()
         },
 
-        _onDialogPernrSelected: function (oEvent) {
-            this._item.pernr = oEvent.mParameters.newValue
-            sap.ui.getCore().byId("idEdtPernr").setValue(this._item.pernr.replace(/^0+/, ''))
-            sap.ui.getCore().byId("idEname").setValue('')
-            sap.ui.getCore().byId("inType").setValue('')
+        set_pernr: function(){
+            const nPernr = this._item.pernr ? this._item.pernr.replace(/^0+/, '') : ''
+            // sap.ui.getCore().byId("idEdtPernr").setValue(nPernr)            
+            
+            const pernrInput = sap.ui.getCore().byId("idEdtPernr-input")
+            pernrInput.mBindingInfos['value'].skipModelUpdate = true
+            pernrInput.setValue(nPernr)
 
-            this.owner.getOwnerComponent().getModel().read("/ZC_HR231_Defaults", { // ZC_HR231_OrgAssign
-                filters: [new sap.ui.model.Filter("pernr", sap.ui.model.FilterOperator.EQ, this._item.pernr)],
-                urlParameters: {
-                    "$select": "ename,emergrole_text"
-                },
+            document.getElementById("idEdtPernr-input-inner").value = nPernr
+            //     pernrInput.setEditable(this.dialogCreateMode) Can change type?
+        },
 
-                success: function (data) {
-                    sap.ui.getCore().byId("idEname").setValue(data.results[0].ename)
-                    sap.ui.getCore().byId("inType").setValue(data.results[0].emergrole_text)
-                }
-            })
+        _onOtherSelected: function (oEvent) {            
+            const { emergrole_id, ename } = oEvent.getParameter('changes')
+            this._item.ename = ename
+            this._item.eid = emergrole_id
+            
+            this._model.updateBindings()
+            this.set_pernr()
+        },
+
+        _onPernrSelected: function (oEvent) {
+            if(oEvent.mParameters.validated)
+                this._item.pernr = oEvent.mParameters.newValue
         }
     });
 }

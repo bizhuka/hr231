@@ -3,7 +3,7 @@
  <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
   <asx:values>
    <NAME>ZR_HR231_EMERGDUTY.XLSX</NAME>
-   <TEXT>ZR_HR231_EMERGDUTY.XLSX</TEXT>
+   <TEXT>Emergency Team Duty</TEXT>
    <PARAMS>
     <WWWPARAMS>
      <NAME>fileextension</NAME>

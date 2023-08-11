@@ -35,18 +35,23 @@
 }    
 @OData.publish: true
 
-@ZABAP.virtualEntity: 'ZCL_HR231_REPORT'
+@ZABAP.virtualEntity: 'ZCL_HR231_ROOT'
 
 define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root                                                             
   association [0..1] to ZC_HR231_EmergeRoleText as _Text      on _Text.eid          = _root.emergrole_id
   
-  association [0..1] to ZC_HR231_Defaults       as _Defaults  on _Defaults.pernr    = _root.pernr  
-  
+  association [0..1] to ZC_HR231_Defaults       as _Defaults  on _Defaults.pernr        = _root.pernr
+                                                             and _Defaults.emergrole_id = _root.emergrole_id
+                                                               
   // Fake connection SM30 tab
   association [0..*] to ZC_HR231_DefaultsEdit   as _DefaultsEdit on _DefaultsEdit.pernr        = _root.pernr
                                                                 and _DefaultsEdit.emergrole_id = '77'
+                                                                
+  association [0..*] to ZC_HR231_Chart          as _Chart        on _Chart.period = 'MONTH'
+  
+  association[0..*] to ZC_PT028_Schedule as _Schedule   on _Schedule.pernr =  $projection.pernr
 {
-     @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.7 }
+     @Search: { defaultSearchElement: true, fuzzinessThreshold: 0.9 }
      @UI.lineItem: [{ position: 10, importance: #HIGH }]
      @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false }
      @Consumption.valueHelp: '_Defaults'
@@ -55,9 +60,9 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
      
      
      @UI.lineItem: [{ position: 20, importance: #HIGH }]
-     @UI.selectionField: [{ position: 10 }]
-     @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false, mandatory: true }
-     @EndUserText.label: 'Period'
+//     @UI.selectionField: [{ position: 10 }]
+//     @Consumption.filter: { selectionType: #INTERVAL, multipleSelections: false, mandatory: true }
+//     @EndUserText.label: 'Period'
      @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 20 }]     
      key _root.begda,
      
@@ -94,21 +99,27 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
           
          _Text.letter,
          _Text.color,
+         _Text.ord,
          
 //         @UI.fieldGroup: [{ qualifier: 'Other' }]
          @UI: {lineItem: [{ position: 100, importance: #LOW } ] }
          @UI.multiLineText: true
          @UI.fieldGroup: [{ qualifier: 'GeneralInfo', position: 40 }]
          _root.notes,
-        
-         @UI.hidden: true
+         
+         @UI.fieldGroup: [{ qualifier: 'Lang', position: 10 }]
+         @UI.hidden: true         
          _Defaults.kz,
+         @UI.fieldGroup: [{ qualifier: 'Lang', position: 20 }]
          @UI.hidden: true
          _Defaults.ru,
+         @UI.fieldGroup: [{ qualifier: 'Lang', position: 30 }]
          @UI.hidden: true
          _Defaults.en,
          
          //cast( ' ' as abap.char( 255 ) ) as photo_path,
+        @UI.hidden: true
+        @UI.fieldGroup: [{ qualifier: 'Dummy', position: 10 }] 
         concat( concat('../../../../../opu/odata/sap/ZC_PY000_REPORT_CDS/ZC_PY000_PernrPhoto(pernr=''', _root.pernr),
                        ''')/$value')  as photo_path,
          
@@ -116,6 +127,8 @@ define view ZC_HR231_Emergency_Role as select distinct from pa9018 as _root
          _Text,
          _Text._Group as _Group,
          _Defaults,
-         _DefaultsEdit
+         _DefaultsEdit,
+         _Schedule,
+         _Chart
          
 } where  _root.sprps = ' '

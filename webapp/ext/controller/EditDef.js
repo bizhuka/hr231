@@ -1,9 +1,10 @@
 sap.ui.define([
-    'sap/ui/base/Object'
-], function (Object) {
+    "zhr231/ext/controller/Libs",
+    "sap/ui/base/Object"
+], function (Libs, SapObject) {
     "use strict";
 
-    return Object.extend("zhr231.ext.controller.EditDef", {
+    return SapObject.extend("zhr231.ext.controller.EditDef", {
         owner: null,
         _def: {},
 
@@ -14,7 +15,7 @@ sap.ui.define([
             this._model.setData(this._def)
         },
 
-        openDialog: function (create, nPernr) {
+        openDialog: function (create, cPernrEid) {
             const _this = this
             _this.dialogCreateMode = create
 
@@ -30,10 +31,12 @@ sap.ui.define([
                 _this.showDialog()
                 return
             }
-            _this._def.pernr = nPernr
 
+            const arrPair = cPernrEid.split('-')
+            _this._def.pernr = arrPair[0]
+            _this._def.emergrole_id = arrPair[1]
 
-            this.readByPernr("ZC_HR231_DefaultsEdit", function (item) {
+            this.readByPernr("ZC_HR231_DefaultsEdit", _this._def.emergrole_id, function (item) {
                 _this._def.emergrole_id = item.emergrole_id
                 _this._def.ename = item.ename
                 _this._def.kz = item.kz
@@ -44,9 +47,13 @@ sap.ui.define([
             })
         },
 
-        readByPernr: function (enitySetName, callback) {
+        readByPernr: function (enitySetName, emergrole_id, callback) {
+            const affFilter = [new sap.ui.model.Filter("pernr", sap.ui.model.FilterOperator.EQ, this._def.pernr)]
+            if(emergrole_id)
+                affFilter.push(new sap.ui.model.Filter("emergrole_id", sap.ui.model.FilterOperator.EQ, emergrole_id))
+
             this.owner.getOwnerComponent().getModel().read(`/${enitySetName}`, {
-                filters: [new sap.ui.model.Filter("pernr", sap.ui.model.FilterOperator.EQ, this._def.pernr)],
+                filters: affFilter,
 
                 success: function (data) {
                     callback(data.results[0])
@@ -83,27 +90,18 @@ sap.ui.define([
             }
 
             if (!item.pernr || !item.emergrole_id) {
-                sap.m.MessageToast.show('Input required fields', { duration: 3500 })
-                $(".sapMMessageToast").css("background", "#cc1919")
+                Libs.showMessage('Input required fields', true)
                 return
             }
 
-            if (this.dialogCreateMode)
-                _this.owner.getView().getModel().create("/ZC_HR231_DefaultsEdit",
-                    item,
-                    {
-                        success: function () {
-                            _this.closeDialog(`Option for ${_this._def.pernr} created`)
-                        }
-                    })
-            else
-                _this.owner.getView().getModel().update(`/ZC_HR231_DefaultsEdit('${item.pernr}')`,
-                    item,
-                    {
-                        success: function () {
-                            _this.closeDialog(`Option for ${_this._def.pernr} updated`)
-                        }
-                    })
+            const methodName = this.dialogCreateMode ? 'create' : 'update'
+            _this.owner.getView().getModel()[methodName]("/ZC_HR231_DefaultsEdit" + (!this.dialogCreateMode ? `(pernr='${item.pernr}',emergrole_id='${item.emergrole_id}')` : ''),
+                item,
+                {
+                    success: function () {
+                        _this.closeDialog(`Option for ${_this._def.pernr} ${methodName}d`)
+                    }
+                })
         },
 
         _onAfterDialogOpen: function () {
@@ -115,7 +113,7 @@ sap.ui.define([
         _onDialogPernrSelected: function (oEvent) {
             const _this = this
             _this._def.pernr = oEvent.mParameters.newValue
-            _this.readByPernr("ZC_HR231_OrgAssign", function (item) {
+            _this.readByPernr("ZC_HR231_OrgAssign", false, function (item) {
                 _this._def.ename = item.ename
                 _this._model.updateBindings()
             })
